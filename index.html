@@ -841,7 +841,12 @@ async function toggleBluetooth(){
   if(!navigator.bluetooth){ alert('Web Bluetooth not available.\n\nUse Chrome on Android.\nSafari/iOS does not support Web Bluetooth.\n\nEnter readings manually instead.'); return; }
   try{
     setBtUI('scan');
-    btDevice=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'DISTO'},{namePrefix:'Leica'},{services:[DISTO_SVC]}],optionalServices:[DISTO_SVC]});
+
+    btDevice=await navigator.bluetooth.requestDevice({
+    acceptAllDevices:true,
+    optionalServices:[DISTO_SVC,'0000fff0-0000-1000-8000-00805f9b34fb','0000ffe0-0000-1000-8000-00805f9b34fb']
+    });
+    
     btDevice.addEventListener('gattserverdisconnected',()=>{ btOn=false; btChar=null; setBtUI('off'); showToast('Device disconnected',3000); });
     const srv=await btDevice.gatt.connect();
     const svc=await srv.getPrimaryService(DISTO_SVC);

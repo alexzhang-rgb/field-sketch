@@ -120,8 +120,9 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
 
 <div id="toolbar">
   <div class="tb-group">
-    <button class="tool active" id="btn-draw" onclick="setMode('draw')">✏ Draw</button>
+    <button class="tool active" id="btn-draw" onclick="toggleDraw()">✏ Draw</button>
     <button class="tool" id="btn-select" onclick="setMode('select')">↖ Select</button>
+    <span id="mode-pill" style="font-size:11px;padding:4px 8px;border-radius:5px;background:#e8eff6;color:#1a3a5c;font-weight:600;white-space:nowrap">✏ Drawing</span>
   </div>
   <div class="tb-sep"></div>
   <div class="tb-group">
@@ -437,9 +438,9 @@ mainCanvas.addEventListener('mousemove',e=>{
 mainCanvas.addEventListener('mousedown',e=>{
   const r=mainCanvas.getBoundingClientRect();
   const cx=e.clientX-r.left, cy=e.clientY-r.top;
-  if(e.button===1||e.altKey){panning=true;panStart={x:cx,y:cy};return;}
+  if(e.button===1||e.altKey||mode==='pan'){panning=true;panStart={x:cx,y:cy};return;}
   if(mode==='draw') placePoint(cx,cy);
-  else selectWall(cx,cy);
+  else if(mode==='select') selectWall(cx,cy);
 });
 mainCanvas.addEventListener('mouseup',()=>panning=false);
 mainCanvas.addEventListener('mouseleave',()=>{panning=false;currentMouse=null;snapPoint=null;snapDot.style.display='none';render();});
@@ -456,10 +457,19 @@ mainCanvas.addEventListener('wheel',e=>{
   drawGrid(); render();
 },{passive:false});
 
-/* ── touch ── */
+/* ── touch ──
+   DRAW ON:   short tap = place anchor point (continues chain)
+              press-and-drag = draw wall from drag start to drag end (no chain needed)
+              2 fingers = pinch zoom + pan
+              long-hold (600ms no move) = end chain
+   DRAW OFF:  1 finger = pan freely
+              2 fingers = pinch zoom + pan
+*/
 let t1Prev=null, tStartPos=null, tMoved=false;
 let pinchDist=null, pinchScale=null, pinchMid=null;
 let longTimer=null;
+let dragDrawing=false;   /* true while finger is drawing a wall via drag */
+let dragStartWorld=null; /* world coord where drag started */
 
 function tMidScreen(t1,t2){
   const r=mainCanvas.getBoundingClientRect();
@@ -469,14 +479,25 @@ function tMidScreen(t1,t2){
 mainCanvas.addEventListener('touchstart',e=>{
   e.preventDefault();
   clearTimeout(longTimer);
+  dragDrawing=false; dragStartWorld=null;
+
   if(e.touches.length===1){
     const r=mainCanvas.getBoundingClientRect();
     const cx=e.touches[0].clientX-r.left, cy=e.touches[0].clientY-r.top;
     t1Prev={cx,cy}; tStartPos={cx,cy}; tMoved=false;
-    updatePointer(cx,cy); render();
-    longTimer=setTimeout(()=>{ if(!tMoved){endChain();showToast('Chain ended');} },600);
+
+    if(mode==='draw'){
+      /* record where the drag might start in world space */
+      const wPos=toWorld(cx,cy);
+      const snap=findSnap(wPos.x,wPos.y);
+      dragStartWorld=snap||wPos;
+      updatePointer(cx,cy); render();
+      /* long-hold ends current chain */
+      longTimer=setTimeout(()=>{ if(!tMoved&&!dragDrawing){ endChain(); showToast('Chain ended'); } },650);
+    }
   } else if(e.touches.length===2){
     clearTimeout(longTimer);
+    dragDrawing=false; dragStartWorld=null;
     pinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
     pinchScale=scale;
     pinchMid=tMidScreen(e.touches[0],e.touches[1]);
@@ -487,13 +508,45 @@ mainCanvas.addEventListener('touchstart',e=>{
 mainCanvas.addEventListener('touchmove',e=>{
   e.preventDefault();
   clearTimeout(longTimer);
+
   if(e.touches.length===1&&t1Prev){
     const r=mainCanvas.getBoundingClientRect();
     const cx=e.touches[0].clientX-r.left, cy=e.touches[0].clientY-r.top;
-    if(Math.hypot(cx-tStartPos.cx,cy-tStartPos.cy)>6) tMoved=true;
+    const dist=Math.hypot(cx-tStartPos.cx,cy-tStartPos.cy);
+
+    if(dist>8) tMoved=true;
+
+    if(mode==='draw'&&tMoved){
+      /* drag-draw: show preview wall from dragStartWorld to current position */
+      dragDrawing=true;
+      updatePointer(cx,cy);
+      /* override currentMouse to be snapped relative to drag start */
+      if(dragStartWorld){
+        const wPos=toWorld(cx,cy);
+        const snap=findSnap(wPos.x,wPos.y);
+        if(snap){ currentMouse=snap; }
+        else{
+          const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
+          currentMouse={x:sn.x,y:sn.y};
+          document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
+        }
+        /* draw preview using dragStartWorld as the "last point" */
+        const len=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y);
+        document.getElementById('info-len').textContent=len.toFixed(3)+'m';
+      }
+      t1Prev={cx,cy}; renderDragPreview(); return;
+    }
+
+    if(mode!=='draw'||!tMoved){
+      /* pan in all modes when draw is off, or when draw is on but not dragging yet */
+      if(mode!=='draw'){
+        offset.x+=cx-t1Prev.cx; offset.y+=cy-t1Prev.cy;
+        drawGrid();
+      }
+    }
     updatePointer(cx,cy); t1Prev={cx,cy}; render();
+
   } else if(e.touches.length===2&&pinchDist!==null){
-    const r=mainCanvas.getBoundingClientRect();
     const newDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
     const newMid=tMidScreen(e.touches[0],e.touches[1]);
     const wb=toWorld(pinchMid.cx,pinchMid.cy);
@@ -511,19 +564,94 @@ mainCanvas.addEventListener('touchmove',e=>{
 mainCanvas.addEventListener('touchend',e=>{
   e.preventDefault();
   clearTimeout(longTimer);
+
   if(e.touches.length===0&&e.changedTouches.length===1){
-    if(!tMoved){
-      const r=mainCanvas.getBoundingClientRect();
-      const cx=e.changedTouches[0].clientX-r.left, cy=e.changedTouches[0].clientY-r.top;
-      if(mode==='draw') placePoint(cx,cy);
-      else selectWall(cx,cy);
+    const r=mainCanvas.getBoundingClientRect();
+    const cx=e.changedTouches[0].clientX-r.left, cy=e.changedTouches[0].clientY-r.top;
+
+    if(mode==='draw'){
+      if(dragDrawing&&dragStartWorld){
+        /* commit the drag-drawn wall */
+        const wPos=toWorld(cx,cy);
+        const snapEnd=findSnap(wPos.x,wPos.y);
+        let endPt;
+        if(snapEnd){ endPt={...snapEnd}; }
+        else{ const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y); endPt={x:sn.x,y:sn.y}; }
+        if(Math.hypot(endPt.x-dragStartWorld.x,endPt.y-dragStartWorld.y)>0.01){
+          saveHistory();
+          /* find or create start point */
+          const startSnap=findSnap(dragStartWorld.x,dragStartWorld.y);
+          const startPt=startSnap||{...dragStartWorld};
+          walls.push({a:{...startPt},b:{...endPt},measurement:null,id:wallIdCounter++});
+          /* leave end point as anchor for next wall if not snapped to existing */
+          if(!snapEnd){ points=[endPt]; }
+          else{ points=[]; }
+          showToast('Wall added — drag again or tap to continue');
+        }
+        dragDrawing=false; dragStartWorld=null; currentMouse=null;
+        render(); return;
+      }
+      /* short tap — original chain behaviour */
+      if(!tMoved){ placePoint(cx,cy); }
+    } else if(mode==='select'){
+      if(!tMoved){ selectWall(cx,cy); }
     }
-    t1Prev=null; tStartPos=null;
+    t1Prev=null; tStartPos=null; dragDrawing=false; dragStartWorld=null;
   }
   if(e.touches.length<2){ pinchDist=null; pinchScale=null; pinchMid=null; }
 },{passive:false});
 
-mainCanvas.addEventListener('touchcancel',()=>{ clearTimeout(longTimer); t1Prev=null; pinchDist=null; },{passive:true});
+mainCanvas.addEventListener('touchcancel',()=>{
+  clearTimeout(longTimer);
+  t1Prev=null; pinchDist=null; dragDrawing=false; dragStartWorld=null;
+},{passive:true});
+
+/* render with drag-draw preview override */
+function renderDragPreview(){
+  ctx.clearRect(0,0,W,H);
+  /* re-draw all walls */
+  for(const w of walls){
+    const a=toScreen(w.a.x,w.a.y), b=toScreen(w.b.x,w.b.y);
+    ctx.strokeStyle=selectedWallId===w.id?'#f80':(w.measurement!==null?'#1a3a5c':'#4a7aac');
+    ctx.lineWidth=selectedWallId===w.id?3:2;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    if(w.measurement!==null){
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+      const nx=-dy/len*14,ny=dx/len*14,label=w.measurement.toFixed(3)+'m';
+      ctx.save(); ctx.font='bold 11px Arial,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      const tw=ctx.measureText(label).width;
+      ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(mx+nx-tw/2-3,my+ny-8,tw+6,16);
+      ctx.fillStyle='#1a3a5c'; ctx.fillText(label,mx+nx,my+ny); ctx.restore();
+    }
+  }
+  /* draw drag-preview wall */
+  if(dragStartWorld&&currentMouse){
+    const a=toScreen(dragStartWorld.x,dragStartWorld.y);
+    const b=toScreen(currentMouse.x,currentMouse.y);
+    ctx.strokeStyle='#22a85a'; ctx.lineWidth=2.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    /* green start dot */
+    ctx.beginPath(); ctx.arc(a.x,a.y,6,0,Math.PI*2);
+    ctx.fillStyle='#22a85a'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    /* end dot */
+    ctx.beginPath(); ctx.arc(b.x,b.y,5,0,Math.PI*2);
+    ctx.fillStyle='#1a3a5c'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    /* live length label */
+    const len=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y);
+    ctx.fillStyle='rgba(26,58,92,0.92)'; ctx.font='bold 12px system-ui';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText(len.toFixed(3)+'m',(a.x+b.x)/2,(a.y+b.y)/2-6);
+  }
+  /* existing points */
+  const seen=new Set();
+  for(const w of walls) for(const p of[w.a,w.b]){
+    const k=p.x.toFixed(4)+','+p.y.toFixed(4); if(seen.has(k)) continue; seen.add(k);
+    const s=toScreen(p.x,p.y);
+    ctx.beginPath(); ctx.arc(s.x,s.y,4,0,Math.PI*2);
+    ctx.fillStyle='#1a3a5c'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  updateSummary();
+}
 
 /* ── place point ── */
 function placePoint(cx,cy){
@@ -654,12 +782,28 @@ function updateSummary(){
 }
 
 /* ── toolbar ── */
+function updateModePill(){
+  const pill=document.getElementById('mode-pill');
+  if(mode==='draw'){
+    pill.textContent='✏ Drawing'; pill.style.background='#e8eff6'; pill.style.color='#1a3a5c';
+  } else if(mode==='pan'){
+    pill.textContent='✋ Pan / zoom'; pill.style.background='#fef3e0'; pill.style.color='#7a4f00';
+  } else {
+    pill.textContent='↖ Select wall'; pill.style.background='#e6f4ec'; pill.style.color='#1a6b3a';
+  }
+}
+function toggleDraw(){
+  /* tap Draw when already in draw mode → switch to pan; tap again → back to draw */
+  if(mode==='draw'){ setMode('pan'); }
+  else { setMode('draw'); }
+}
 function setMode(m){
   mode=m;
   document.getElementById('btn-draw').classList.toggle('active',m==='draw');
   document.getElementById('btn-select').classList.toggle('active',m==='select');
-  if(m==='select') endChain();
-  document.getElementById('info-mode').textContent=m==='draw'?'Draw':'Select';
+  if(m==='select'||m==='pan') endChain();
+  document.getElementById('info-mode').textContent=m==='draw'?'Draw':m==='pan'?'Pan':'Select';
+  updateModePill();
   render();
 }
 function saveHistory(){ history.push({walls:JSON.parse(JSON.stringify(walls)),points:JSON.parse(JSON.stringify(points))}); if(history.length>60) history.shift(); }

@@ -841,39 +841,17 @@ async function toggleBluetooth(){
   if(!navigator.bluetooth){ alert('Web Bluetooth not available.\n\nUse Chrome on Android.\nSafari/iOS does not support Web Bluetooth.\n\nEnter readings manually instead.'); return; }
   try{
     setBtUI('scan');
-
-    btDevice=await navigator.bluetooth.requestDevice({
-    acceptAllDevices:true,
-    optionalServices:[DISTO_SVC,'0000fff0-0000-1000-8000-00805f9b34fb','0000ffe0-0000-1000-8000-00805f9b34fb']
-    });
-    
+    btDevice=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'DISTO'},{namePrefix:'Leica'},{services:[DISTO_SVC]}],optionalServices:[DISTO_SVC]});
     btDevice.addEventListener('gattserverdisconnected',()=>{ btOn=false; btChar=null; setBtUI('off'); showToast('Device disconnected',3000); });
     const srv=await btDevice.gatt.connect();
     const svc=await srv.getPrimaryService(DISTO_SVC);
     btChar=await svc.getCharacteristic(DISTO_TX);
     await btChar.startNotifications();
     btChar.addEventListener('characteristicvaluechanged',e=>{
-    btChar.addEventListener('characteristicvaluechanged',e=>{
-  const dv=e.target.value;
-  /* show raw bytes in toast so we can diagnose */
-  let bytes=[];
-  for(let i=0;i<dv.byteLength;i++) bytes.push(dv.getUint8(i).toString(16).padStart(2,'0'));
-  showToast('Raw: ['+bytes.join(' ')+'] len:'+dv.byteLength, 6000);
-
-  if(dv.byteLength>=4){
-    const rawLE=dv.getInt32(0,true);   /* little-endian */
-    const rawBE=dv.getInt32(0,false);  /* big-endian */
-    console.log('LE int32:',rawLE,' BE int32:',rawBE,
-                ' LE÷10000:',rawLE*0.0001,' BE÷10000:',rawBE*0.0001,
-                ' LE÷1000:',rawLE*0.001,' BE÷1000:',rawBE*0.001);
-    /* try most likely: little-endian ÷ 1000 (millimetres) */
-    if(rawLE>0&&rawLE<100000){ addReading(parseFloat((rawLE*0.001).toFixed(3)),'bluetooth'); return; }
-  }
-  if(dv.byteLength>=2){
-    const raw=dv.getUint16(0,true);
-    if(raw>0&&raw<50000) addReading(parseFloat((raw*0.001).toFixed(3)),'bluetooth');
-  }
-});
+      const dv=e.target.value;
+      if(dv.byteLength>=4){ const raw=dv.getInt32(0,true); if(raw>0&&raw<500000){ addReading(parseFloat((raw*0.0001).toFixed(4)),'bluetooth'); return; } }
+      if(dv.byteLength>=2){ const raw=dv.getUint16(0,true); if(raw>0&&raw<50000) addReading(parseFloat((raw*0.001).toFixed(3)),'bluetooth'); }
+    });
     try{ const rx=await svc.getCharacteristic(DISTO_RX); await rx.writeValue(new Uint8Array([0x00,0x01])); }catch(_){}
     btOn=true; setBtUI('on',btDevice.name||'Laser');
     showToast('Connected: '+(btDevice.name||'device'));

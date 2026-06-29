@@ -16,8 +16,6 @@
 }
 html,body{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:13px;position:fixed;inset:0}
-
-/* ── toolbar ── */
 #toolbar{display:flex;align-items:center;gap:5px;padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;z-index:10;flex-shrink:0}
 .tb-group{display:flex;gap:3px;align-items:center}
 .tb-sep{width:1px;height:20px;background:var(--border);margin:0 3px}
@@ -26,51 +24,22 @@ button.tool.active{background:var(--accent);color:#fff;border-color:var(--accent
 button.tool.green{background:var(--green-bg);color:var(--green);border-color:#a8d8b8}
 button.tool.green.on{background:var(--green);color:#fff;border-color:var(--green)}
 button.tool.danger{background:var(--red-bg);color:var(--red);border-color:#e8b0b0}
-
-/* ── canvas area ── */
 #canvas-wrap{flex:1;position:relative;overflow:hidden;touch-action:none}
 canvas{position:absolute;top:0;left:0;touch-action:none}
 #snap-dot{position:absolute;pointer-events:none;width:16px;height:16px;border-radius:50%;border:2.5px solid #f80;background:rgba(255,136,0,0.15);transform:translate(-50%,-50%);display:none;z-index:20}
 #toast{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(20,30,50,0.88);color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;z-index:200;display:none;white-space:nowrap;pointer-events:none}
-
-/* ── bottom drawer ── */
-#drawer{
-  position:absolute;bottom:0;left:0;right:0;
-  background:var(--surface);
-  border-top:1px solid var(--border);
-  border-radius:14px 14px 0 0;
-  z-index:30;
-  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  transform:translateY(0);
-  display:flex;flex-direction:column;
-  max-height:80vh;
-}
+#drawer{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:14px 14px 0 0;z-index:30;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);transform:translateY(0);display:flex;flex-direction:column;max-height:80vh}
 #drawer.collapsed{transform:translateY(calc(100% - var(--drawer-peek)))}
-
-/* drag handle + peek bar */
-#drawer-handle{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 14px 6px;cursor:pointer;flex-shrink:0;
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
-}
+#drawer-handle{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 6px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;user-select:none}
 #drawer-pill{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 6px}
 #drawer-summary{display:flex;gap:14px;align-items:center;font-size:12px;flex:1}
-.sum-chip{color:var(--text2)}
-.sum-chip b{color:var(--accent);font-weight:600}
+.sum-chip{color:var(--text2)}.sum-chip b{color:var(--accent);font-weight:600}
 #drawer-toggle-btn{font-size:11px;color:var(--accent-mid);border:1px solid var(--border2);border-radius:5px;padding:3px 8px;background:var(--surface2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-
-/* drawer tabs */
 #drawer-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
 .dtab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;-webkit-tap-highlight-color:transparent}
 .dtab.active{color:var(--accent);border-bottom-color:var(--accent)}
-
-/* drawer content panels */
 #drawer-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.dpanel{display:none;padding:10px 12px}
-.dpanel.active{display:block}
-
-/* readings */
+.dpanel{display:none;padding:10px 12px}.dpanel.active{display:block}
 #readings-list{margin-bottom:8px}
 .reading-item{padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent}
 .reading-item.used{opacity:0.38}
@@ -80,15 +49,11 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
 #add-reading-row{display:flex;gap:6px;margin-top:4px}
 #add-reading-row input{flex:1;padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-size:14px;background:var(--surface2)}
 #add-reading-row button{padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap}
-
-/* settings */
 .setting-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:13px}
 .setting-row:last-child{margin-bottom:0}
 .setting-row label{color:var(--text2)}
 .setting-row select,.setting-row input[type=number]{padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:13px;background:var(--surface2);color:var(--text);width:110px}
 #wall-row{display:none}
-
-/* bt row inside settings */
 #bt-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:10px}
 .bt-dot{width:9px;height:9px;border-radius:50%;background:#ccc;flex-shrink:0}
 .bt-dot.connected{background:#22a85a}
@@ -96,8 +61,6 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 #bt-name{font-size:12px;color:var(--text2);flex:1}
 #btn-bt{padding:5px 10px;font-size:12px}
-
-/* modal */
 #modal-overlay{display:none;position:absolute;inset:0;background:rgba(20,30,50,0.45);z-index:100;align-items:flex-end;justify-content:center}
 #modal-overlay.show{display:flex}
 #modal{background:var(--surface);border-radius:14px 14px 0 0;padding:20px;width:100%;max-width:500px}
@@ -110,8 +73,6 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
 .modal-btns button{padding:9px 20px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500}
 .btn-cancel{background:none;border:1px solid var(--border2);color:var(--text)}
 .btn-ok{background:var(--accent);color:#fff;border:none}
-
-/* info bar — slim on mobile */
 #info-bar{padding:3px 10px;background:var(--accent);color:#aac8e4;font-size:10px;display:flex;gap:10px;flex-shrink:0;overflow:hidden}
 #info-bar span{white-space:nowrap}
 </style>
@@ -143,7 +104,6 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
   <canvas id="main-canvas"></canvas>
   <div id="snap-dot"></div>
   <div id="toast"></div>
-
   <div id="modal-overlay">
     <div id="modal">
       <h3 id="modal-title">Assign measurement</h3>
@@ -158,9 +118,7 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
   </div>
 </div>
 
-<!-- bottom drawer -->
 <div id="drawer" class="collapsed">
-  <!-- peek bar — always visible -->
   <div id="drawer-handle" onclick="toggleDrawer()">
     <div style="flex:1">
       <div id="drawer-pill"></div>
@@ -172,16 +130,13 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
     </div>
     <button id="drawer-toggle-btn">▲ Panel</button>
   </div>
-
-  <!-- tabs -->
   <div id="drawer-tabs">
     <div class="dtab active" onclick="showTab('readings')">Readings</div>
     <div class="dtab" onclick="showTab('settings')">Settings</div>
     <div class="dtab" onclick="showTab('export')">Export</div>
   </div>
-
-  <!-- readings panel -->
   <div id="drawer-content">
+
     <div class="dpanel active" id="tab-readings">
       <div id="readings-list"></div>
       <div id="add-reading-row">
@@ -190,7 +145,6 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
       </div>
     </div>
 
-    <!-- settings panel -->
     <div class="dpanel" id="tab-settings">
       <div id="bt-row">
         <div class="bt-dot" id="bt-dot"></div>
@@ -223,7 +177,6 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
       </div>
     </div>
 
-    <!-- export panel -->
     <div class="dpanel" id="tab-export">
       <div class="setting-row" style="margin-bottom:6px">
         <label>Job / file name</label>
@@ -238,10 +191,9 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
         <button class="tool green" id="btn-drive" style="width:100%;justify-content:center;padding:10px;font-size:13px" onclick="exportToDrive()">☁ Save to Google Drive</button>
       </div>
       <p id="drive-status" style="font-size:11px;color:var(--text2);margin-top:10px;line-height:1.5;text-align:center"></p>
-      <p style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5">
-        First Drive save opens a Google sign-in popup. Allow pop-ups for this page if blocked.
-      </p>
+      <p style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5">First Drive save opens a Google sign-in popup. Allow pop-ups for this page if blocked.</p>
     </div>
+
   </div>
 </div>
 
@@ -253,32 +205,20 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
 </div>
 
 <script>
-const bgCanvas = document.getElementById('bg-canvas');
-const mainCanvas = document.getElementById('main-canvas');
-const bgCtx = bgCanvas.getContext('2d');
-const ctx = mainCanvas.getContext('2d');
-const canvasWrap = document.getElementById('canvas-wrap');
-const snapDot = document.getElementById('snap-dot');
-const drawer = document.getElementById('drawer');
+const bgCanvas=document.getElementById('bg-canvas');
+const mainCanvas=document.getElementById('main-canvas');
+const bgCtx=bgCanvas.getContext('2d');
+const ctx=mainCanvas.getContext('2d');
+const canvasWrap=document.getElementById('canvas-wrap');
+const snapDot=document.getElementById('snap-dot');
+const drawer=document.getElementById('drawer');
 
-let W=0, H=0;
-let mode='draw';
-let points=[];
-let walls=[];
-let wallIdCounter=0;
-let currentMouse=null;
-let snapPoint=null;
-let selectedWallId=null;
-let offset={x:200,y:300};
-let scale=100;
-let panning=false, panStart=null;
-let history=[];
-let measSource='internal';
-let wallThickness=0.2;
-let angleSnap=15;
-let readings=[];
-let readingIdCounter=0;
-let drawerOpen=false;
+let W=0,H=0,mode='draw',points=[],walls=[],wallIdCounter=0;
+let currentMouse=null,snapPoint=null,selectedWallId=null;
+let offset={x:200,y:300},scale=100;
+let panning=false,panStart=null;
+let history=[],measSource='internal',wallThickness=0.2,angleSnap=15;
+let readings=[],readingIdCounter=0,drawerOpen=false;
 
 /* ── drawer ── */
 function toggleDrawer(){
@@ -288,21 +228,17 @@ function toggleDrawer(){
   setTimeout(resize,320);
 }
 function showTab(name){
-  document.querySelectorAll('.dtab').forEach((t,i)=>t.classList.toggle('active',['readings','settings'][i]===name));
+  const tabs=['readings','settings','export'];
+  document.querySelectorAll('.dtab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
   document.querySelectorAll('.dpanel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
 }
-
-/* drawer swipe-up gesture */
 let dSwipeY=null;
-drawer.addEventListener('touchstart',e=>{
-  if(e.target.closest('#drawer-content')) return;
-  dSwipeY=e.touches[0].clientY;
-},{passive:true});
+drawer.addEventListener('touchstart',e=>{if(e.target.closest('#drawer-content')) return; dSwipeY=e.touches[0].clientY;},{passive:true});
 drawer.addEventListener('touchend',e=>{
   if(dSwipeY===null) return;
   const dy=dSwipeY-e.changedTouches[0].clientY;
-  if(Math.abs(dy)>30){ drawerOpen=dy>0; drawer.classList.toggle('collapsed',!drawerOpen); document.getElementById('drawer-toggle-btn').textContent=drawerOpen?'▼ Panel':'▲ Panel'; setTimeout(resize,320); }
+  if(Math.abs(dy)>30){drawerOpen=dy>0;drawer.classList.toggle('collapsed',!drawerOpen);document.getElementById('drawer-toggle-btn').textContent=drawerOpen?'▼ Panel':'▲ Panel';setTimeout(resize,320);}
   dSwipeY=null;
 },{passive:true});
 
@@ -319,19 +255,19 @@ window.addEventListener('orientationchange',()=>setTimeout(resize,250));
 setTimeout(resize,0); setTimeout(resize,150); setTimeout(resize,500);
 
 /* ── coords ── */
-const toScreen=(wx,wy)=>({x:wx*scale+offset.x, y:-wy*scale+offset.y});
-const toWorld=(sx,sy)=>({x:(sx-offset.x)/scale, y:-(sy-offset.y)/scale});
+const toScreen=(wx,wy)=>({x:wx*scale+offset.x,y:-wy*scale+offset.y});
+const toWorld=(sx,sy)=>({x:(sx-offset.x)/scale,y:-(sy-offset.y)/scale});
 
 /* ── grid ── */
 function drawGrid(){
   bgCtx.clearRect(0,0,W,H);
   const step=scale;
   bgCtx.strokeStyle='rgba(80,100,140,0.1)'; bgCtx.lineWidth=0.5;
-  const ox=((offset.x%step)+step)%step, oy=((offset.y%step)+step)%step;
+  const ox=((offset.x%step)+step)%step,oy=((offset.y%step)+step)%step;
   for(let x=ox;x<W;x+=step){bgCtx.beginPath();bgCtx.moveTo(x,0);bgCtx.lineTo(x,H);bgCtx.stroke();}
   for(let y=oy;y<H;y+=step){bgCtx.beginPath();bgCtx.moveTo(0,y);bgCtx.lineTo(W,y);bgCtx.stroke();}
   bgCtx.strokeStyle='rgba(80,100,140,0.28)'; bgCtx.lineWidth=1;
-  const s5=step*5, ox5=((offset.x%s5)+s5)%s5, oy5=((offset.y%s5)+s5)%s5;
+  const s5=step*5,ox5=((offset.x%s5)+s5)%s5,oy5=((offset.y%s5)+s5)%s5;
   for(let x=ox5-s5;x<W+s5;x+=s5){bgCtx.beginPath();bgCtx.moveTo(x,0);bgCtx.lineTo(x,H);bgCtx.stroke();}
   for(let y=oy5-s5;y<H+s5;y+=s5){bgCtx.beginPath();bgCtx.moveTo(0,y);bgCtx.lineTo(W,y);bgCtx.stroke();}
   bgCtx.fillStyle='rgba(80,100,140,0.5)'; bgCtx.font='9px system-ui'; bgCtx.textAlign='center';
@@ -344,21 +280,18 @@ function drawGrid(){
 function render(){
   ctx.clearRect(0,0,W,H);
   for(const w of walls){
-    const a=toScreen(w.a.x,w.a.y), b=toScreen(w.b.x,w.b.y);
+    const a=toScreen(w.a.x,w.a.y),b=toScreen(w.b.x,w.b.y);
     const isSel=selectedWallId===w.id;
     ctx.strokeStyle=isSel?'#f80':(w.measurement!==null?'#1a3a5c':'#4a7aac');
     ctx.lineWidth=isSel?3:2;
-    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
     if(w.measurement!==null){
-      const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
-      const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1;
-      const nx=-dy/len*14, ny=dx/len*14;
-      const label=w.measurement.toFixed(3)+'m';
-      ctx.save(); ctx.font='bold 11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+      const nx=-dy/len*14,ny=dx/len*14,label=w.measurement.toFixed(3)+'m';
+      ctx.save();ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
       const tw=ctx.measureText(label).width;
-      ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(mx+nx-tw/2-3,my+ny-8,tw+6,16);
-      ctx.fillStyle='#1a3a5c'; ctx.fillText(label,mx+nx,my+ny);
-      ctx.restore();
+      ctx.fillStyle='rgba(255,255,255,0.88)';ctx.fillRect(mx+nx-tw/2-3,my+ny-8,tw+6,16);
+      ctx.fillStyle='#1a3a5c';ctx.fillText(label,mx+nx,my+ny);ctx.restore();
     }
   }
   const seen=new Set();
@@ -366,22 +299,18 @@ function render(){
     const k=p.x.toFixed(4)+','+p.y.toFixed(4);
     if(seen.has(k)) return; seen.add(k);
     const s=toScreen(p.x,p.y);
-    ctx.beginPath(); ctx.arc(s.x,s.y,r,0,Math.PI*2);
-    ctx.fillStyle='#1a3a5c'; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);
+    ctx.fillStyle='#1a3a5c';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
   };
-  for(const w of walls){ drawPt(w.a); drawPt(w.b); }
+  for(const w of walls){drawPt(w.a);drawPt(w.b);}
   for(const p of points) drawPt(p,5);
   if(currentMouse&&mode==='draw'&&points.length>0){
-    const last=points[points.length-1];
-    const wp=snapPoint||currentMouse;
-    const a=toScreen(last.x,last.y), b=toScreen(wp.x,wp.y);
-    ctx.strokeStyle='rgba(26,58,92,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([6,5]);
-    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-    ctx.setLineDash([]);
+    const last=points[points.length-1],wp=snapPoint||currentMouse;
+    const a=toScreen(last.x,last.y),b=toScreen(wp.x,wp.y);
+    ctx.strokeStyle='rgba(26,58,92,0.4)';ctx.lineWidth=1.5;ctx.setLineDash([6,5]);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.setLineDash([]);
     const len=Math.hypot(wp.x-last.x,wp.y-last.y);
-    ctx.fillStyle='rgba(26,58,92,0.9)'; ctx.font='11px system-ui';
-    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillStyle='rgba(26,58,92,0.9)';ctx.font='11px system-ui';ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillText(len.toFixed(3)+'m',(a.x+b.x)/2,(a.y+b.y)/2-4);
   }
   updateSummary();
@@ -389,55 +318,44 @@ function render(){
 
 /* ── snap ── */
 function findSnap(wx,wy){
-  const r=0.18; let best=null,bestD=Infinity;
+  const r=0.18;let best=null,bestD=Infinity;
   const all=[...points];
   for(const w of walls) all.push(w.a,w.b);
-  for(const p of all){ const d=Math.hypot(p.x-wx,p.y-wy); if(d<r&&d<bestD){bestD=d;best=p;} }
+  for(const p of all){const d=Math.hypot(p.x-wx,p.y-wy);if(d<r&&d<bestD){bestD=d;best=p;}}
   return best;
 }
 function angleSnapped(last,wx,wy){
-  const dx=wx-last.x, dy=wy-last.y;
+  const dx=wx-last.x,dy=wy-last.y;
   const a=Math.atan2(dy,dx)*180/Math.PI;
   const s=Math.round(a/angleSnap)*angleSnap;
-  const rad=s*Math.PI/180, len=Math.hypot(dx,dy);
-  return {x:last.x+Math.cos(rad)*len, y:last.y+Math.sin(rad)*len, angle:s};
+  const rad=s*Math.PI/180,len=Math.hypot(dx,dy);
+  return {x:last.x+Math.cos(rad)*len,y:last.y+Math.sin(rad)*len,angle:s};
 }
 
-/* ── update cursor state (shared mouse+touch) ── */
+/* ── pointer state ── */
 function updatePointer(cx,cy){
   const wPos=toWorld(cx,cy);
   document.getElementById('info-pos').textContent=`x:${wPos.x.toFixed(2)} y:${wPos.y.toFixed(2)}`;
   snapPoint=findSnap(wPos.x,wPos.y);
-  if(snapPoint){
-    const s=toScreen(snapPoint.x,snapPoint.y);
-    snapDot.style.display='block';
-    snapDot.style.left=s.x+'px'; snapDot.style.top=s.y+'px';
-  } else { snapDot.style.display='none'; }
+  if(snapPoint){const s=toScreen(snapPoint.x,snapPoint.y);snapDot.style.display='block';snapDot.style.left=s.x+'px';snapDot.style.top=s.y+'px';}
+  else snapDot.style.display='none';
   if(mode==='draw'){
-    if(snapPoint){ currentMouse=snapPoint; document.getElementById('info-angle').textContent='snap'; }
-    else if(points.length>0){
-      const sn=angleSnapped(points[points.length-1],wPos.x,wPos.y);
-      currentMouse={x:sn.x,y:sn.y};
-      document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
-    } else { currentMouse=wPos; document.getElementById('info-angle').textContent='—'; }
-    if(points.length>0){
-      const l=points[points.length-1];
-      document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-l.x,currentMouse.y-l.y).toFixed(3)+'m';
-    }
+    if(snapPoint){currentMouse=snapPoint;document.getElementById('info-angle').textContent='snap';}
+    else if(points.length>0){const sn=angleSnapped(points[points.length-1],wPos.x,wPos.y);currentMouse={x:sn.x,y:sn.y};document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';}
+    else{currentMouse=wPos;document.getElementById('info-angle').textContent='—';}
+    if(points.length>0){const l=points[points.length-1];document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-l.x,currentMouse.y-l.y).toFixed(3)+'m';}
   }
 }
 
 /* ── mouse ── */
 mainCanvas.addEventListener('contextmenu',e=>{e.preventDefault();endChain();});
 mainCanvas.addEventListener('mousemove',e=>{
-  const r=mainCanvas.getBoundingClientRect();
-  const cx=e.clientX-r.left, cy=e.clientY-r.top;
+  const r=mainCanvas.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top;
   if(panning){offset.x+=cx-panStart.x;offset.y+=cy-panStart.y;panStart={x:cx,y:cy};drawGrid();render();return;}
-  updatePointer(cx,cy); render();
+  updatePointer(cx,cy);render();
 });
 mainCanvas.addEventListener('mousedown',e=>{
-  const r=mainCanvas.getBoundingClientRect();
-  const cx=e.clientX-r.left, cy=e.clientY-r.top;
+  const r=mainCanvas.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top;
   if(e.button===1||e.altKey||mode==='pan'){panning=true;panStart={x:cx,y:cy};return;}
   if(mode==='draw') placePoint(cx,cy);
   else if(mode==='select') selectWall(cx,cy);
@@ -447,208 +365,133 @@ mainCanvas.addEventListener('mouseleave',()=>{panning=false;currentMouse=null;sn
 mainCanvas.addEventListener('dblclick',()=>{if(mode==='draw') endChain();});
 mainCanvas.addEventListener('wheel',e=>{
   e.preventDefault();
-  const r=mainCanvas.getBoundingClientRect();
-  const cx=e.clientX-r.left, cy=e.clientY-r.top;
+  const r=mainCanvas.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top;
   const wb=toWorld(cx,cy);
   scale=Math.max(15,Math.min(600,scale*(e.deltaY<0?1.12:0.88)));
   const wa=toWorld(cx,cy);
-  offset.x+=(wa.x-wb.x)*scale; offset.y-=(wa.y-wb.y)*scale;
+  offset.x+=(wa.x-wb.x)*scale;offset.y-=(wa.y-wb.y)*scale;
   document.getElementById('px-per-m').value=Math.round(scale);
-  drawGrid(); render();
+  drawGrid();render();
 },{passive:false});
 
-/* ── touch ──
-   DRAW ON:   short tap = place anchor point (continues chain)
-              press-and-drag = draw wall from drag start to drag end (no chain needed)
-              2 fingers = pinch zoom + pan
-              long-hold (600ms no move) = end chain
-   DRAW OFF:  1 finger = pan freely
-              2 fingers = pinch zoom + pan
-*/
-let t1Prev=null, tStartPos=null, tMoved=false;
-let pinchDist=null, pinchScale=null, pinchMid=null;
-let longTimer=null;
-let dragDrawing=false;   /* true while finger is drawing a wall via drag */
-let dragStartWorld=null; /* world coord where drag started */
+/* ── touch ── */
+let t1Prev=null,tStartPos=null,tMoved=false;
+let pinchDist=null,pinchScale=null,pinchMid=null;
+let longTimer=null,dragDrawing=false,dragStartWorld=null;
 
 function tMidScreen(t1,t2){
   const r=mainCanvas.getBoundingClientRect();
-  return {cx:(t1.clientX+t2.clientX)/2-r.left, cy:(t1.clientY+t2.clientY)/2-r.top};
+  return {cx:(t1.clientX+t2.clientX)/2-r.left,cy:(t1.clientY+t2.clientY)/2-r.top};
 }
 
 mainCanvas.addEventListener('touchstart',e=>{
-  e.preventDefault();
-  clearTimeout(longTimer);
-  dragDrawing=false; dragStartWorld=null;
-
+  e.preventDefault();clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;
   if(e.touches.length===1){
-    const r=mainCanvas.getBoundingClientRect();
-    const cx=e.touches[0].clientX-r.left, cy=e.touches[0].clientY-r.top;
-    t1Prev={cx,cy}; tStartPos={cx,cy}; tMoved=false;
-
+    const r=mainCanvas.getBoundingClientRect(),cx=e.touches[0].clientX-r.left,cy=e.touches[0].clientY-r.top;
+    t1Prev={cx,cy};tStartPos={cx,cy};tMoved=false;
     if(mode==='draw'){
-      /* record where the drag might start in world space */
-      const wPos=toWorld(cx,cy);
-      const snap=findSnap(wPos.x,wPos.y);
+      const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
       dragStartWorld=snap||wPos;
-      updatePointer(cx,cy); render();
-      /* long-hold ends current chain */
-      longTimer=setTimeout(()=>{ if(!tMoved&&!dragDrawing){ endChain(); showToast('Chain ended'); } },650);
+      updatePointer(cx,cy);render();
+      longTimer=setTimeout(()=>{if(!tMoved&&!dragDrawing){endChain();showToast('Chain ended');}},650);
     }
   } else if(e.touches.length===2){
-    clearTimeout(longTimer);
-    dragDrawing=false; dragStartWorld=null;
+    clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;
     pinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    pinchScale=scale;
-    pinchMid=tMidScreen(e.touches[0],e.touches[1]);
-    t1Prev=null;
+    pinchScale=scale;pinchMid=tMidScreen(e.touches[0],e.touches[1]);t1Prev=null;
   }
 },{passive:false});
 
 mainCanvas.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  clearTimeout(longTimer);
-
+  e.preventDefault();clearTimeout(longTimer);
   if(e.touches.length===1&&t1Prev){
-    const r=mainCanvas.getBoundingClientRect();
-    const cx=e.touches[0].clientX-r.left, cy=e.touches[0].clientY-r.top;
-    const dist=Math.hypot(cx-tStartPos.cx,cy-tStartPos.cy);
-
-    if(dist>8) tMoved=true;
-
+    const r=mainCanvas.getBoundingClientRect(),cx=e.touches[0].clientX-r.left,cy=e.touches[0].clientY-r.top;
+    if(Math.hypot(cx-tStartPos.cx,cy-tStartPos.cy)>8) tMoved=true;
     if(mode==='draw'&&tMoved){
-      /* drag-draw: show preview wall from dragStartWorld to current position */
       dragDrawing=true;
-      updatePointer(cx,cy);
-      /* override currentMouse to be snapped relative to drag start */
       if(dragStartWorld){
-        const wPos=toWorld(cx,cy);
-        const snap=findSnap(wPos.x,wPos.y);
-        if(snap){ currentMouse=snap; }
-        else{
-          const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
-          currentMouse={x:sn.x,y:sn.y};
-          document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
-        }
-        /* draw preview using dragStartWorld as the "last point" */
-        const len=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y);
-        document.getElementById('info-len').textContent=len.toFixed(3)+'m';
+        const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
+        if(snap){currentMouse=snap;}
+        else{const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);currentMouse={x:sn.x,y:sn.y};document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';}
+        document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y).toFixed(3)+'m';
       }
-      t1Prev={cx,cy}; renderDragPreview(); return;
+      t1Prev={cx,cy};renderDragPreview();return;
     }
-
-    if(mode!=='draw'||!tMoved){
-      /* pan in all modes when draw is off, or when draw is on but not dragging yet */
-      if(mode!=='draw'){
-        offset.x+=cx-t1Prev.cx; offset.y+=cy-t1Prev.cy;
-        drawGrid();
-      }
-    }
-    updatePointer(cx,cy); t1Prev={cx,cy}; render();
-
+    if(mode!=='draw'){offset.x+=cx-t1Prev.cx;offset.y+=cy-t1Prev.cy;drawGrid();}
+    updatePointer(cx,cy);t1Prev={cx,cy};render();
   } else if(e.touches.length===2&&pinchDist!==null){
     const newDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
     const newMid=tMidScreen(e.touches[0],e.touches[1]);
     const wb=toWorld(pinchMid.cx,pinchMid.cy);
     scale=Math.max(15,Math.min(600,pinchScale*(newDist/pinchDist)));
-    const panDx=newMid.cx-pinchMid.cx, panDy=newMid.cy-pinchMid.cy;
+    const panDx=newMid.cx-pinchMid.cx,panDy=newMid.cy-pinchMid.cy;
     const wa=toWorld(pinchMid.cx,pinchMid.cy);
-    offset.x+=(wa.x-wb.x)*scale+panDx;
-    offset.y-=(wa.y-wb.y)*scale-panDy;
-    pinchMid=newMid; pinchDist=newDist; pinchScale=scale;
+    offset.x+=(wa.x-wb.x)*scale+panDx;offset.y-=(wa.y-wb.y)*scale-panDy;
+    pinchMid=newMid;pinchDist=newDist;pinchScale=scale;
     document.getElementById('px-per-m').value=Math.round(scale);
-    drawGrid(); render();
+    drawGrid();render();
   }
 },{passive:false});
 
 mainCanvas.addEventListener('touchend',e=>{
-  e.preventDefault();
-  clearTimeout(longTimer);
-
+  e.preventDefault();clearTimeout(longTimer);
   if(e.touches.length===0&&e.changedTouches.length===1){
-    const r=mainCanvas.getBoundingClientRect();
-    const cx=e.changedTouches[0].clientX-r.left, cy=e.changedTouches[0].clientY-r.top;
-
+    const r=mainCanvas.getBoundingClientRect(),cx=e.changedTouches[0].clientX-r.left,cy=e.changedTouches[0].clientY-r.top;
     if(mode==='draw'){
       if(dragDrawing&&dragStartWorld){
-        /* commit the drag-drawn wall */
-        const wPos=toWorld(cx,cy);
-        const snapEnd=findSnap(wPos.x,wPos.y);
-        let endPt;
-        if(snapEnd){ endPt={...snapEnd}; }
-        else{ const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y); endPt={x:sn.x,y:sn.y}; }
+        const wPos=toWorld(cx,cy),snapEnd=findSnap(wPos.x,wPos.y);
+        let endPt=snapEnd||{...(()=>{const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);return {x:sn.x,y:sn.y};})()};
         if(Math.hypot(endPt.x-dragStartWorld.x,endPt.y-dragStartWorld.y)>0.01){
           saveHistory();
-          /* find or create start point */
           const startSnap=findSnap(dragStartWorld.x,dragStartWorld.y);
-          const startPt=startSnap||{...dragStartWorld};
-          walls.push({a:{...startPt},b:{...endPt},measurement:null,id:wallIdCounter++});
-          /* leave end point as anchor for next wall if not snapped to existing */
-          if(!snapEnd){ points=[endPt]; }
-          else{ points=[]; }
-          showToast('Wall added — drag again or tap to continue');
+          walls.push({a:{...(startSnap||dragStartWorld)},b:{...endPt},measurement:null,id:wallIdCounter++});
+          points=snapEnd?[]:[endPt];
+          showToast('Wall added');
         }
-        dragDrawing=false; dragStartWorld=null; currentMouse=null;
-        render(); return;
+        dragDrawing=false;dragStartWorld=null;currentMouse=null;render();return;
       }
-      /* short tap — original chain behaviour */
-      if(!tMoved){ placePoint(cx,cy); }
+      if(!tMoved) placePoint(cx,cy);
     } else if(mode==='select'){
-      if(!tMoved){ selectWall(cx,cy); }
+      if(!tMoved) selectWall(cx,cy);
     }
-    t1Prev=null; tStartPos=null; dragDrawing=false; dragStartWorld=null;
+    t1Prev=null;tStartPos=null;dragDrawing=false;dragStartWorld=null;
   }
-  if(e.touches.length<2){ pinchDist=null; pinchScale=null; pinchMid=null; }
+  if(e.touches.length<2){pinchDist=null;pinchScale=null;pinchMid=null;}
 },{passive:false});
 
-mainCanvas.addEventListener('touchcancel',()=>{
-  clearTimeout(longTimer);
-  t1Prev=null; pinchDist=null; dragDrawing=false; dragStartWorld=null;
-},{passive:true});
+mainCanvas.addEventListener('touchcancel',()=>{clearTimeout(longTimer);t1Prev=null;pinchDist=null;dragDrawing=false;dragStartWorld=null;},{passive:true});
 
-/* render with drag-draw preview override */
 function renderDragPreview(){
   ctx.clearRect(0,0,W,H);
-  /* re-draw all walls */
   for(const w of walls){
-    const a=toScreen(w.a.x,w.a.y), b=toScreen(w.b.x,w.b.y);
+    const a=toScreen(w.a.x,w.a.y),b=toScreen(w.b.x,w.b.y);
     ctx.strokeStyle=selectedWallId===w.id?'#f80':(w.measurement!==null?'#1a3a5c':'#4a7aac');
     ctx.lineWidth=selectedWallId===w.id?3:2;
-    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
     if(w.measurement!==null){
       const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
       const nx=-dy/len*14,ny=dx/len*14,label=w.measurement.toFixed(3)+'m';
-      ctx.save(); ctx.font='bold 11px Arial,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.save();ctx.font='bold 11px Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
       const tw=ctx.measureText(label).width;
-      ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(mx+nx-tw/2-3,my+ny-8,tw+6,16);
-      ctx.fillStyle='#1a3a5c'; ctx.fillText(label,mx+nx,my+ny); ctx.restore();
+      ctx.fillStyle='rgba(255,255,255,0.88)';ctx.fillRect(mx+nx-tw/2-3,my+ny-8,tw+6,16);
+      ctx.fillStyle='#1a3a5c';ctx.fillText(label,mx+nx,my+ny);ctx.restore();
     }
   }
-  /* draw drag-preview wall */
   if(dragStartWorld&&currentMouse){
-    const a=toScreen(dragStartWorld.x,dragStartWorld.y);
-    const b=toScreen(currentMouse.x,currentMouse.y);
-    ctx.strokeStyle='#22a85a'; ctx.lineWidth=2.5; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-    /* green start dot */
-    ctx.beginPath(); ctx.arc(a.x,a.y,6,0,Math.PI*2);
-    ctx.fillStyle='#22a85a'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
-    /* end dot */
-    ctx.beginPath(); ctx.arc(b.x,b.y,5,0,Math.PI*2);
-    ctx.fillStyle='#1a3a5c'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
-    /* live length label */
+    const a=toScreen(dragStartWorld.x,dragStartWorld.y),b=toScreen(currentMouse.x,currentMouse.y);
+    ctx.strokeStyle='#22a85a';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+    ctx.beginPath();ctx.arc(a.x,a.y,6,0,Math.PI*2);ctx.fillStyle='#22a85a';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fillStyle='#1a3a5c';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
     const len=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y);
-    ctx.fillStyle='rgba(26,58,92,0.92)'; ctx.font='bold 12px system-ui';
-    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillStyle='rgba(26,58,92,0.92)';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillText(len.toFixed(3)+'m',(a.x+b.x)/2,(a.y+b.y)/2-6);
   }
-  /* existing points */
   const seen=new Set();
   for(const w of walls) for(const p of[w.a,w.b]){
-    const k=p.x.toFixed(4)+','+p.y.toFixed(4); if(seen.has(k)) continue; seen.add(k);
+    const k=p.x.toFixed(4)+','+p.y.toFixed(4);if(seen.has(k)) continue;seen.add(k);
     const s=toScreen(p.x,p.y);
-    ctx.beginPath(); ctx.arc(s.x,s.y,4,0,Math.PI*2);
-    ctx.fillStyle='#1a3a5c'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.beginPath();ctx.arc(s.x,s.y,4,0,Math.PI*2);ctx.fillStyle='#1a3a5c';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
   }
   updateSummary();
 }
@@ -658,36 +501,25 @@ function placePoint(cx,cy){
   const wPos=toWorld(cx,cy);
   let wx,wy;
   const snap=findSnap(wPos.x,wPos.y);
-  if(snap){ wx=snap.x; wy=snap.y; }
-  else if(points.length>0){ const s=angleSnapped(points[points.length-1],wPos.x,wPos.y); wx=s.x; wy=s.y; }
-  else{ wx=wPos.x; wy=wPos.y; }
+  if(snap){wx=snap.x;wy=snap.y;}
+  else if(points.length>0){const s=angleSnapped(points[points.length-1],wPos.x,wPos.y);wx=s.x;wy=s.y;}
+  else{wx=wPos.x;wy=wPos.y;}
   if(points.length>0){
     const last=points[points.length-1];
     if(Math.hypot(wx-last.x,wy-last.y)<0.001) return;
     saveHistory();
     const target=snap||{x:wx,y:wy};
     walls.push({a:{...last},b:{...target},measurement:null,id:wallIdCounter++});
-    if(snap){ endChain(); }
-    else{ points.push({x:wx,y:wy}); }
-  } else { saveHistory(); points.push({x:wx,y:wy}); }
+    if(snap){endChain();}else{points.push({x:wx,y:wy});}
+  } else {saveHistory();points.push({x:wx,y:wy});}
   render();
 }
-
-function endChain(){
-  points=[]; currentMouse=null;
-  document.getElementById('info-angle').textContent='—';
-  document.getElementById('info-len').textContent='—';
-  render();
-}
+function endChain(){points=[];currentMouse=null;document.getElementById('info-angle').textContent='—';document.getElementById('info-len').textContent='—';render();}
 
 /* ── select ── */
 function selectWall(cx,cy){
-  const wPos=toWorld(cx,cy);
-  selectedWallId=null; let bestD=Infinity;
-  for(const w of walls){
-    const d=distSeg(wPos,w.a,w.b);
-    if(d<0.14&&d<bestD){ bestD=d; selectedWallId=w.id; }
-  }
+  const wPos=toWorld(cx,cy);selectedWallId=null;let bestD=Infinity;
+  for(const w of walls){const d=distSeg(wPos,w.a,w.b);if(d<0.14&&d<bestD){bestD=d;selectedWallId=w.id;}}
   if(selectedWallId!==null) openModal(selectedWallId);
   render();
 }
@@ -708,61 +540,52 @@ function openModal(id){
   document.getElementById('modal-title').textContent='Assign measurement';
   document.getElementById('modal-desc').textContent=`Drawn: ${wLen.toFixed(3)} m · from ${measSource}${measSource==='external'?' (wall '+wallThickness.toFixed(3)+'m)':''}. Value is fixed once set.`;
   document.getElementById('modal-input').value=w.measurement!==null?w.measurement:'';
-  const qEl=document.getElementById('modal-readings'); qEl.innerHTML='';
+  const qEl=document.getElementById('modal-readings');qEl.innerHTML='';
   const avail=readings.filter(r=>!r.used);
   if(avail.length){
-    const lbl=document.createElement('p');
-    lbl.style.cssText='font-size:11px;color:var(--text2);margin-bottom:5px';
-    lbl.textContent='Tap to use:'; qEl.appendChild(lbl);
-    for(const r of avail){
-      const btn=document.createElement('button');
-      btn.className='modal-reading-btn';
-      btn.textContent=r.value.toFixed(3)+'m';
-      btn.onclick=()=>document.getElementById('modal-input').value=r.value;
-      qEl.appendChild(btn);
-    }
+    const lbl=document.createElement('p');lbl.style.cssText='font-size:11px;color:var(--text2);margin-bottom:5px';lbl.textContent='Tap to use:';qEl.appendChild(lbl);
+    for(const r of avail){const btn=document.createElement('button');btn.className='modal-reading-btn';btn.textContent=r.value.toFixed(3)+'m';btn.onclick=()=>document.getElementById('modal-input').value=r.value;qEl.appendChild(btn);}
   }
   document.getElementById('modal-overlay').classList.add('show');
   setTimeout(()=>document.getElementById('modal-input').focus(),80);
 }
-function closeModal(){ document.getElementById('modal-overlay').classList.remove('show'); pendingWallId=null; selectedWallId=null; render(); }
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');pendingWallId=null;selectedWallId=null;render();}
 function confirmModal(){
   const val=parseFloat(document.getElementById('modal-input').value);
-  if(isNaN(val)||val<=0){ alert('Enter a valid distance.'); return; }
+  if(isNaN(val)||val<=0){alert('Enter a valid distance.');return;}
   if(pendingWallId!==null){
     const w=walls.find(x=>x.id===pendingWallId);
-    if(w){ w.measurement=val; const m=readings.find(r=>!r.used&&Math.abs(r.value-val)<0.0005); if(m){m.used=true;renderReadings();} }
+    if(w){w.measurement=val;const m=readings.find(r=>!r.used&&Math.abs(r.value-val)<0.0005);if(m){m.used=true;renderReadings();}}
   }
-  updateSummary(); render(); closeModal();
+  updateSummary();render();closeModal();
 }
-document.getElementById('modal-input').addEventListener('keydown',e=>{ if(e.key==='Enter') confirmModal(); if(e.key==='Escape') closeModal(); });
+document.getElementById('modal-input').addEventListener('keydown',e=>{if(e.key==='Enter') confirmModal();if(e.key==='Escape') closeModal();});
 
 /* ── readings ── */
 function addReading(value,source='manual'){
   readings.push({id:readingIdCounter++,value,source,used:false});
-  renderReadings(); showToast('Added: '+value.toFixed(3)+' m');
+  renderReadings();showToast('Added: '+value.toFixed(3)+' m');
 }
 function addReadingManual(){
   const val=parseFloat(document.getElementById('new-reading-val').value);
   if(isNaN(val)||val<=0) return;
-  addReading(val,'manual');
-  document.getElementById('new-reading-val').value='';
+  addReading(val,'manual');document.getElementById('new-reading-val').value='';
 }
-function removeReading(id){ readings=readings.filter(r=>r.id!==id); renderReadings(); }
+function removeReading(id){readings=readings.filter(r=>r.id!==id);renderReadings();}
 function renderReadings(){
-  const el=document.getElementById('readings-list'); el.innerHTML='';
+  const el=document.getElementById('readings-list');el.innerHTML='';
   for(const r of [...readings.filter(x=>!x.used),...readings.filter(x=>x.used)]){
     const div=document.createElement('div');
     div.className='reading-item'+(r.used?' used':'');
     div.innerHTML=`<span><span class="reading-val">${r.value.toFixed(3)} m</span><br><span class="reading-src">${r.source==='bluetooth'?'via Bluetooth':'manual'}</span></span><button class="reading-del" onclick="event.stopPropagation();removeReading(${r.id})">✕</button>`;
     if(!r.used) div.onclick=()=>{
-      if(selectedWallId!==null){ const w=walls.find(x=>x.id===selectedWallId); if(w){w.measurement=r.value;r.used=true;renderReadings();updateSummary();render();} }
-      else if(walls.length){ openModal(walls[walls.length-1].id); document.getElementById('modal-input').value=r.value; }
+      if(selectedWallId!==null){const w=walls.find(x=>x.id===selectedWallId);if(w){w.measurement=r.value;r.used=true;renderReadings();updateSummary();render();}}
+      else if(walls.length){openModal(walls[walls.length-1].id);document.getElementById('modal-input').value=r.value;}
     };
     el.appendChild(div);
   }
 }
-document.getElementById('new-reading-val').addEventListener('keydown',e=>{ if(e.key==='Enter') addReadingManual(); });
+document.getElementById('new-reading-val').addEventListener('keydown',e=>{if(e.key==='Enter') addReadingManual();});
 
 /* ── summary ── */
 function updateSummary(){
@@ -772,9 +595,8 @@ function updateSummary(){
     if(measSource==='external'&&w.measurement!==null) v=Math.max(0,v-wallThickness);
     perim+=v;
   }
-  const pts=walls.map(w=>w.a);
-  let area=0;
-  for(let i=0;i<pts.length;i++){ const j=(i+1)%pts.length; area+=pts[i].x*pts[j].y-pts[j].x*pts[i].y; }
+  const pts=walls.map(w=>w.a);let area=0;
+  for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;area+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}
   area=Math.abs(area)/2;
   document.getElementById('sum-walls').textContent=walls.length;
   document.getElementById('sum-perim').textContent=perim.toFixed(3)+' m';
@@ -784,42 +606,33 @@ function updateSummary(){
 /* ── toolbar ── */
 function updateModePill(){
   const pill=document.getElementById('mode-pill');
-  if(mode==='draw'){
-    pill.textContent='✏ Drawing'; pill.style.background='#e8eff6'; pill.style.color='#1a3a5c';
-  } else if(mode==='pan'){
-    pill.textContent='✋ Pan / zoom'; pill.style.background='#fef3e0'; pill.style.color='#7a4f00';
-  } else {
-    pill.textContent='↖ Select wall'; pill.style.background='#e6f4ec'; pill.style.color='#1a6b3a';
-  }
+  if(mode==='draw'){pill.textContent='✏ Drawing';pill.style.background='#e8eff6';pill.style.color='#1a3a5c';}
+  else if(mode==='pan'){pill.textContent='✋ Pan / zoom';pill.style.background='#fef3e0';pill.style.color='#7a4f00';}
+  else{pill.textContent='↖ Select wall';pill.style.background='#e6f4ec';pill.style.color='#1a6b3a';}
 }
-function toggleDraw(){
-  /* tap Draw when already in draw mode → switch to pan; tap again → back to draw */
-  if(mode==='draw'){ setMode('pan'); }
-  else { setMode('draw'); }
-}
+function toggleDraw(){if(mode==='draw'){setMode('pan');}else{setMode('draw');}}
 function setMode(m){
   mode=m;
   document.getElementById('btn-draw').classList.toggle('active',m==='draw');
   document.getElementById('btn-select').classList.toggle('active',m==='select');
   if(m==='select'||m==='pan') endChain();
   document.getElementById('info-mode').textContent=m==='draw'?'Draw':m==='pan'?'Pan':'Select';
-  updateModePill();
-  render();
+  updateModePill();render();
 }
-function saveHistory(){ history.push({walls:JSON.parse(JSON.stringify(walls)),points:JSON.parse(JSON.stringify(points))}); if(history.length>60) history.shift(); }
-function undo(){ if(!history.length) return; const p=history.pop(); walls=p.walls; points=p.points; currentMouse=null; selectedWallId=null; updateSummary(); render(); }
-function clearAll(){ if(!confirm('Clear all?')) return; saveHistory(); walls=[]; points=[]; currentMouse=null; selectedWallId=null; updateSummary(); render(); }
-function zoomIn(){ scale=Math.min(600,scale*1.2); document.getElementById('px-per-m').value=Math.round(scale); drawGrid(); render(); }
-function zoomOut(){ scale=Math.max(15,scale/1.2); document.getElementById('px-per-m').value=Math.round(scale); drawGrid(); render(); }
+function saveHistory(){history.push({walls:JSON.parse(JSON.stringify(walls)),points:JSON.parse(JSON.stringify(points))});if(history.length>60) history.shift();}
+function undo(){if(!history.length) return;const p=history.pop();walls=p.walls;points=p.points;currentMouse=null;selectedWallId=null;updateSummary();render();}
+function clearAll(){if(!confirm('Clear all?')) return;saveHistory();walls=[];points=[];currentMouse=null;selectedWallId=null;updateSummary();render();}
+function zoomIn(){scale=Math.min(600,scale*1.2);document.getElementById('px-per-m').value=Math.round(scale);drawGrid();render();}
+function zoomOut(){scale=Math.max(15,scale/1.2);document.getElementById('px-per-m').value=Math.round(scale);drawGrid();render();}
 function fitView(){
-  if(!walls.length){ offset={x:W/2,y:H/2}; scale=100; drawGrid(); render(); return; }
+  if(!walls.length){offset={x:W/2,y:H/2};scale=100;drawGrid();render();return;}
   let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
-  for(const w of walls) for(const p of[w.a,w.b]){ x0=Math.min(x0,p.x); x1=Math.max(x1,p.x); y0=Math.min(y0,p.y); y1=Math.max(y1,p.y); }
+  for(const w of walls) for(const p of[w.a,w.b]){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);}
   const pad=60;
   scale=Math.min((W-pad*2)/((x1-x0)||1),(H-pad*2)/((y1-y0)||1),400);
-  offset.x=W/2-(x0+x1)/2*scale; offset.y=H/2+(y0+y1)/2*scale;
+  offset.x=W/2-(x0+x1)/2*scale;offset.y=H/2+(y0+y1)/2*scale;
   document.getElementById('px-per-m').value=Math.round(scale);
-  drawGrid(); render();
+  drawGrid();render();
 }
 function updateSettings(){
   measSource=document.getElementById('meas-source').value;
@@ -827,280 +640,224 @@ function updateSettings(){
   angleSnap=parseInt(document.getElementById('angle-snap').value)||15;
   scale=parseInt(document.getElementById('px-per-m').value)||100;
   document.getElementById('wall-row').style.display=measSource==='external'?'flex':'none';
-  updateSummary(); render();
+  updateSummary();render();
 }
-function showToast(msg,ms=2200){ const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',ms); }
+function showToast(msg,ms=2200){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',ms);}
 
 /* ── bluetooth ── */
-const DISTO_SVC='3ab10100-f831-4395-b29d-570977d5bf94';
-const DISTO_TX='3ab10101-f831-4395-b29d-570977d5bf94';
-const DISTO_RX='3ab10102-f831-4395-b29d-570977d5bf94';
-let btDevice=null,btChar=null,btOn=false;
+const DEVICES={
+  leica:{
+    svc:'3ab10100-f831-4395-b29d-570977d5bf94',
+    tx:'3ab10101-f831-4395-b29d-570977d5bf94',
+    rx:'3ab10102-f831-4395-b29d-570977d5bf94',
+    decode:dv=>{
+      if(dv.byteLength>=4){const r=dv.getInt32(0,true);if(r>0&&r<5000000) return parseFloat((r*0.0001).toFixed(4));}
+      if(dv.byteLength>=2){const r=dv.getUint16(0,true);if(r>0&&r<50000) return parseFloat((r*0.001).toFixed(3));}
+      return null;
+    }
+  },
+  bosch:{
+    svc:'0000fff0-0000-1000-8000-00805f9b34fb',
+    tx:'0000fff1-0000-1000-8000-00805f9b34fb',
+    rx:'0000fff2-0000-1000-8000-00805f9b34fb',
+    decode:dv=>{
+      /* GLM 100-25C sends 4-byte little-endian mm value */
+      if(dv.byteLength>=4){const r=dv.getInt32(0,true);if(r>0&&r<100000) return parseFloat((r*0.001).toFixed(3));}
+      /* some firmware sends 2-byte mm */
+      if(dv.byteLength>=2){const r=dv.getUint16(0,true);if(r>0&&r<50000) return parseFloat((r*0.001).toFixed(3));}
+      return null;
+    }
+  }
+};
+
+let btDevice=null,btChar=null,btOn=false,btDecoder=null;
+
+function onBtMeasurement(e){
+  const dv=e.target.value;
+  /* always log raw for diagnostics */
+  let bytes=[];
+  for(let i=0;i<dv.byteLength;i++) bytes.push(dv.getUint8(i).toString(16).padStart(2,'0'));
+  console.log('BT raw ['+ bytes.join(' ')+'] len:'+dv.byteLength);
+  const val=btDecoder?btDecoder(dv):null;
+  if(val!==null&&val>0&&val<200){
+    addReading(val,'bluetooth');
+  } else {
+    /* fallback: show raw so user can report */
+    showToast('Raw: ['+bytes.join(' ')+']',5000);
+  }
+}
+
+async function tryConnectWithProfile(srv, profile){
+  try{
+    const svc=await srv.getPrimaryService(profile.svc);
+    const tx=await svc.getCharacteristic(profile.tx);
+    await tx.startNotifications();
+    tx.addEventListener('characteristicvaluechanged',onBtMeasurement);
+    btDecoder=profile.decode;
+    /* try sending trigger command */
+    try{const rx=await svc.getCharacteristic(profile.rx);await rx.writeValue(new Uint8Array([0x00,0x01]));}catch(_){}
+    return true;
+  }catch(_){return false;}
+}
+
 async function toggleBluetooth(){
-  if(btOn){ if(btDevice?.gatt?.connected) btDevice.gatt.disconnect(); btOn=false; btDevice=null; btChar=null; setBtUI('off'); return; }
-  if(!navigator.bluetooth){ alert('Web Bluetooth not available.\n\nUse Chrome on Android.\nSafari/iOS does not support Web Bluetooth.\n\nEnter readings manually instead.'); return; }
+  if(btOn){
+    if(btDevice?.gatt?.connected) btDevice.gatt.disconnect();
+    btOn=false;btDevice=null;btChar=null;btDecoder=null;setBtUI('off');return;
+  }
+  if(!navigator.bluetooth){alert('Web Bluetooth not available.\n\nUse Chrome on Android.\nSafari/iOS does not support Web Bluetooth.\n\nEnter readings manually instead.');return;}
   try{
     setBtUI('scan');
-    btDevice=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'DISTO'},{namePrefix:'Leica'},{services:[DISTO_SVC]}],optionalServices:[DISTO_SVC]});
-    btDevice.addEventListener('gattserverdisconnected',()=>{ btOn=false; btChar=null; setBtUI('off'); showToast('Device disconnected',3000); });
-    const srv=await btDevice.gatt.connect();
-    const svc=await srv.getPrimaryService(DISTO_SVC);
-    btChar=await svc.getCharacteristic(DISTO_TX);
-    await btChar.startNotifications();
-    btChar.addEventListener('characteristicvaluechanged',e=>{
-      const dv=e.target.value;
-      if(dv.byteLength>=4){ const raw=dv.getInt32(0,true); if(raw>0&&raw<500000){ addReading(parseFloat((raw*0.0001).toFixed(4)),'bluetooth'); return; } }
-      if(dv.byteLength>=2){ const raw=dv.getUint16(0,true); if(raw>0&&raw<50000) addReading(parseFloat((raw*0.001).toFixed(3)),'bluetooth'); }
+    btDevice=await navigator.bluetooth.requestDevice({
+      acceptAllDevices:true,
+      optionalServices:[
+        DEVICES.leica.svc,
+        DEVICES.bosch.svc,
+        '0000ffe0-0000-1000-8000-00805f9b34fb'
+      ]
     });
-    try{ const rx=await svc.getCharacteristic(DISTO_RX); await rx.writeValue(new Uint8Array([0x00,0x01])); }catch(_){}
-    btOn=true; setBtUI('on',btDevice.name||'Laser');
+    btDevice.addEventListener('gattserverdisconnected',()=>{btOn=false;btChar=null;btDecoder=null;setBtUI('off');showToast('Device disconnected',3000);});
+    const srv=await btDevice.gatt.connect();
+    const name=(btDevice.name||'').toLowerCase();
+
+    /* try Bosch first if name suggests it, otherwise try Leica first */
+    let connected=false;
+    if(name.includes('glm')||name.includes('bosch')){
+      connected=await tryConnectWithProfile(srv,DEVICES.bosch);
+      if(!connected) connected=await tryConnectWithProfile(srv,DEVICES.leica);
+    } else {
+      connected=await tryConnectWithProfile(srv,DEVICES.leica);
+      if(!connected) connected=await tryConnectWithProfile(srv,DEVICES.bosch);
+    }
+
+    if(!connected){
+      showToast('Connected but could not find measurement service — try taking a reading',4000);
+      /* still mark as connected so user can try */
+    }
+    btOn=true;setBtUI('on',btDevice.name||'Laser');
     showToast('Connected: '+(btDevice.name||'device'));
-  }catch(err){ setBtUI('off'); if(err.name!=='NotFoundError') showToast('BT: '+err.message,4000); }
+  }catch(err){setBtUI('off');if(err.name!=='NotFoundError') showToast('BT: '+err.message,4000);}
 }
+
 function setBtUI(state,name=''){
-  const dot=document.getElementById('bt-dot'), nm=document.getElementById('bt-name'), btn=document.getElementById('btn-bt');
+  const dot=document.getElementById('bt-dot'),nm=document.getElementById('bt-name'),btn=document.getElementById('btn-bt');
   dot.className='bt-dot';
-  if(state==='scan'){ dot.classList.add('scanning'); nm.textContent='Scanning…'; btn.textContent='⬡ Scanning…'; }
-  else if(state==='on'){ dot.classList.add('connected'); nm.textContent=name; btn.textContent='⬡ Disconnect'; btn.classList.add('on'); }
-  else { nm.textContent='No device connected'; btn.textContent='⬡ Connect laser'; btn.classList.remove('on'); }
+  if(state==='scan'){dot.classList.add('scanning');nm.textContent='Scanning…';btn.textContent='⬡ Scanning…';}
+  else if(state==='on'){dot.classList.add('connected');nm.textContent=name;btn.textContent='⬡ Disconnect';btn.classList.add('on');}
+  else{nm.textContent='No device connected';btn.textContent='⬡ Connect laser';btn.classList.remove('on');}
 }
 
 /* ── keyboard ── */
 document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT') return;
-  if(e.key==='Escape'){ endChain(); closeModal(); }
+  if(e.key==='Escape'){endChain();closeModal();}
   if(e.key==='d'||e.key==='D') setMode('draw');
   if(e.key==='s'||e.key==='S') setMode('select');
-  if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); undo(); }
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}
   if(e.key==='f'||e.key==='F') fitView();
-  if((e.key==='Delete'||e.key==='Backspace')&&selectedWallId!==null){ saveHistory(); walls=walls.filter(w=>w.id!==selectedWallId); selectedWallId=null; updateSummary(); render(); }
+  if((e.key==='Delete'||e.key==='Backspace')&&selectedWallId!==null){saveHistory();walls=walls.filter(w=>w.id!==selectedWallId);selectedWallId=null;updateSummary();render();}
 });
 
-/* ═══════════════════════════════════════════
-   EXPORT — render to off-screen canvas then JPEG
-═══════════════════════════════════════════ */
+/* ── export ── */
 function buildExportCanvas(){
-  if(!walls.length){ alert('Nothing to export — draw some walls first.'); return null; }
-
-  const PAD=80, LABEL_H=60;
-  const EXP_SCALE=120; /* px per metre in export */
-
-  /* bounding box in world coords */
+  if(!walls.length){alert('Nothing to export — draw some walls first.');return null;}
+  const PAD=80,LABEL_H=60,EXP_SCALE=120;
   let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
-  for(const w of walls) for(const p of[w.a,w.b]){
-    x0=Math.min(x0,p.x); x1=Math.max(x1,p.x);
-    y0=Math.min(y0,p.y); y1=Math.max(y1,p.y);
-  }
-
-  const cw=Math.ceil((x1-x0)*EXP_SCALE)+PAD*2;
-  const ch=Math.ceil((y1-y0)*EXP_SCALE)+PAD*2+LABEL_H;
-
-  const ec=document.createElement('canvas');
-  ec.width=cw; ec.height=ch;
+  for(const w of walls) for(const p of[w.a,w.b]){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);}
+  const cw=Math.ceil((x1-x0)*EXP_SCALE)+PAD*2,ch=Math.ceil((y1-y0)*EXP_SCALE)+PAD*2+LABEL_H;
+  const ec=document.createElement('canvas');ec.width=cw;ec.height=ch;
   const c=ec.getContext('2d');
-
-  /* white background */
-  c.fillStyle='#ffffff'; c.fillRect(0,0,cw,ch);
-
-  /* optional light grid */
+  c.fillStyle='#ffffff';c.fillRect(0,0,cw,ch);
   if(document.getElementById('export-grid').checked){
-    c.strokeStyle='rgba(100,130,180,0.12)'; c.lineWidth=0.5;
-    for(let x=0;x<cw;x+=EXP_SCALE){ c.beginPath();c.moveTo(x,0);c.lineTo(x,ch);c.stroke(); }
-    for(let y=0;y<ch;y+=EXP_SCALE){ c.beginPath();c.moveTo(0,y);c.lineTo(cw,y);c.stroke(); }
-    c.strokeStyle='rgba(100,130,180,0.3)'; c.lineWidth=1;
-    for(let x=0;x<cw;x+=EXP_SCALE*5){ c.beginPath();c.moveTo(x,0);c.lineTo(x,ch);c.stroke(); }
-    for(let y=0;y<ch;y+=EXP_SCALE*5){ c.beginPath();c.moveTo(0,y);c.lineTo(cw,y);c.stroke(); }
+    c.strokeStyle='rgba(100,130,180,0.12)';c.lineWidth=0.5;
+    for(let x=0;x<cw;x+=EXP_SCALE){c.beginPath();c.moveTo(x,0);c.lineTo(x,ch);c.stroke();}
+    for(let y=0;y<ch;y+=EXP_SCALE){c.beginPath();c.moveTo(0,y);c.lineTo(cw,y);c.stroke();}
+    c.strokeStyle='rgba(100,130,180,0.3)';c.lineWidth=1;
+    for(let x=0;x<cw;x+=EXP_SCALE*5){c.beginPath();c.moveTo(x,0);c.lineTo(x,ch);c.stroke();}
+    for(let y=0;y<ch;y+=EXP_SCALE*5){c.beginPath();c.moveTo(0,y);c.lineTo(cw,y);c.stroke();}
   }
-
-  /* coord transform for export canvas */
-  const toE=(wx,wy)=>({
-    x:(wx-x0)*EXP_SCALE+PAD,
-    y:(y1-wy)*EXP_SCALE+PAD
-  });
-
-  /* draw walls */
+  const toE=(wx,wy)=>({x:(wx-x0)*EXP_SCALE+PAD,y:(y1-wy)*EXP_SCALE+PAD});
   for(const w of walls){
-    const a=toE(w.a.x,w.a.y), b=toE(w.b.x,w.b.y);
-    c.strokeStyle='#1a3a5c'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
-
-    /* dimension line with ticks */
-    const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1;
-    const nx=-dy/len, ny=dx/len;
-    const OFF=22;
-    const lx1=a.x+nx*OFF, ly1=a.y+ny*OFF;
-    const lx2=b.x+nx*OFF, ly2=b.y+ny*OFF;
-    c.strokeStyle='#4a7aac'; c.lineWidth=1;
-    /* dimension line */
-    c.beginPath(); c.moveTo(lx1,ly1); c.lineTo(lx2,ly2); c.stroke();
-    /* end ticks */
-    const tx=-nx*5, ty=-ny*5;
-    c.beginPath(); c.moveTo(lx1+tx,ly1+ty); c.lineTo(lx1-tx,ly1-ty); c.stroke();
-    c.beginPath(); c.moveTo(lx2+tx,ly2+ty); c.lineTo(lx2-tx,ly2-ty); c.stroke();
-
-    /* measurement label */
+    const a=toE(w.a.x,w.a.y),b=toE(w.b.x,w.b.y);
+    c.strokeStyle='#1a3a5c';c.lineWidth=2.5;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
+    const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,OFF=22;
+    const lx1=a.x+nx*OFF,ly1=a.y+ny*OFF,lx2=b.x+nx*OFF,ly2=b.y+ny*OFF;
+    c.strokeStyle='#4a7aac';c.lineWidth=1;c.beginPath();c.moveTo(lx1,ly1);c.lineTo(lx2,ly2);c.stroke();
+    const tx=-nx*5,ty=-ny*5;
+    c.beginPath();c.moveTo(lx1+tx,ly1+ty);c.lineTo(lx1-tx,ly1-ty);c.stroke();
+    c.beginPath();c.moveTo(lx2+tx,ly2+ty);c.lineTo(lx2-tx,ly2-ty);c.stroke();
     const val=w.measurement!==null?w.measurement:Math.hypot(w.b.x-w.a.x,w.b.y-w.a.y);
     const dispVal=measSource==='external'&&w.measurement!==null?Math.max(0,val-wallThickness):val;
     const label=dispVal.toFixed(3)+' m'+(w.measurement===null?' (drawn)':'');
-    const mx=(lx1+lx2)/2, my=(ly1+ly2)/2;
-    c.save();
-    c.font='bold 12px Arial,sans-serif';
-    c.textAlign='center'; c.textBaseline='middle';
+    const mx=(lx1+lx2)/2,my=(ly1+ly2)/2;
+    c.save();c.font='bold 12px Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';
     const tw=c.measureText(label).width;
-    c.fillStyle='rgba(255,255,255,0.92)';
-    c.fillRect(mx-tw/2-4, my-9, tw+8, 18);
-    c.fillStyle='#1a3a5c';
-    c.fillText(label, mx, my);
-    c.restore();
+    c.fillStyle='rgba(255,255,255,0.92)';c.fillRect(mx-tw/2-4,my-9,tw+8,18);
+    c.fillStyle='#1a3a5c';c.fillText(label,mx,my);c.restore();
   }
-
-  /* draw points */
   const seen=new Set();
   for(const w of walls) for(const p of[w.a,w.b]){
-    const k=p.x.toFixed(4)+','+p.y.toFixed(4);
-    if(seen.has(k)) continue; seen.add(k);
-    const s=toE(p.x,p.y);
-    c.beginPath(); c.arc(s.x,s.y,4,0,Math.PI*2);
-    c.fillStyle='#1a3a5c'; c.fill();
-    c.strokeStyle='#fff'; c.lineWidth=1.5; c.stroke();
+    const k=p.x.toFixed(4)+','+p.y.toFixed(4);if(seen.has(k)) continue;seen.add(k);
+    const s=toE(p.x,p.y);c.beginPath();c.arc(s.x,s.y,4,0,Math.PI*2);c.fillStyle='#1a3a5c';c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.stroke();
   }
-
-  /* summary footer */
   let perim=0;
-  for(const w of walls){
-    let v=w.measurement!==null?w.measurement:Math.hypot(w.b.x-w.a.x,w.b.y-w.a.y);
-    if(measSource==='external'&&w.measurement!==null) v=Math.max(0,v-wallThickness);
-    perim+=v;
-  }
-  const pts=walls.map(w=>w.a);
-  let area=0;
-  for(let i=0;i<pts.length;i++){ const j=(i+1)%pts.length; area+=pts[i].x*pts[j].y-pts[j].x*pts[i].y; }
+  for(const w of walls){let v=w.measurement!==null?w.measurement:Math.hypot(w.b.x-w.a.x,w.b.y-w.a.y);if(measSource==='external'&&w.measurement!==null) v=Math.max(0,v-wallThickness);perim+=v;}
+  const pts=walls.map(w=>w.a);let area=0;
+  for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;area+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}
   area=Math.abs(area)/2;
-
   const fy=ch-LABEL_H+4;
-  c.fillStyle='#e8eff6';
-  c.fillRect(0,fy,cw,LABEL_H);
-  c.strokeStyle='#c8dded'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(0,fy); c.lineTo(cw,fy); c.stroke();
-
-  c.fillStyle='#1a3a5c';
-  c.font='bold 13px Arial,sans-serif';
-  c.textAlign='left'; c.textBaseline='top';
+  c.fillStyle='#e8eff6';c.fillRect(0,fy,cw,LABEL_H);
+  c.strokeStyle='#c8dded';c.lineWidth=1;c.beginPath();c.moveTo(0,fy);c.lineTo(cw,fy);c.stroke();
+  c.fillStyle='#1a3a5c';c.font='bold 13px Arial,sans-serif';c.textAlign='left';c.textBaseline='top';
   const fname=document.getElementById('export-filename').value||'Field Sketch';
-  c.fillText(fname, 14, fy+8);
-
-  c.font='12px Arial,sans-serif';
-  c.fillStyle='#3a5a7c';
-  const now=new Date();
-  const dateStr=now.toLocaleDateString('en-NZ',{day:'2-digit',month:'short',year:'numeric'});
-  const summaryStr=`Walls: ${walls.length}   Perimeter: ${perim.toFixed(3)} m   Area: ${area.toFixed(3)} m²   Measured from: ${measSource}${measSource==='external'?' (wall '+wallThickness.toFixed(3)+' m)':''}   ${dateStr}`;
-  c.fillText(summaryStr, 14, fy+26);
-
-  c.font='10px Arial,sans-serif';
-  c.fillStyle='#7a9abc';
-  c.fillText('Field Sketch — '+window.location.hostname, 14, fy+44);
-
+  c.fillText(fname,14,fy+8);
+  c.font='12px Arial,sans-serif';c.fillStyle='#3a5a7c';
+  const dateStr=new Date().toLocaleDateString('en-NZ',{day:'2-digit',month:'short',year:'numeric'});
+  c.fillText(`Walls: ${walls.length}   Perimeter: ${perim.toFixed(3)} m   Area: ${area.toFixed(3)} m²   From: ${measSource}   ${dateStr}`,14,fy+26);
+  c.font='10px Arial,sans-serif';c.fillStyle='#7a9abc';c.fillText('Field Sketch — '+window.location.hostname,14,fy+44);
   return ec;
 }
-
 function exportJpeg(){
-  const ec=buildExportCanvas(); if(!ec) return;
+  const ec=buildExportCanvas();if(!ec) return;
   const fname=(document.getElementById('export-filename').value||'field-sketch').replace(/[^a-z0-9_-]/gi,'_');
-  ec.toBlob(blob=>{
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download=fname+'.jpg'; a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-    showToast('JPEG downloaded');
-  },'image/jpeg',0.95);
+  ec.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname+'.jpg';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);showToast('JPEG downloaded');},'image/jpeg',0.95);
 }
 
-/* ═══════════════════════════════════════════
-   GOOGLE DRIVE UPLOAD
-   Uses Google Identity Services (GIS) token flow — no backend needed.
-   You need a Google Cloud project with:
-     1. Drive API enabled
-     2. An OAuth 2.0 Client ID (Web application type)
-     3. Your hosting origin added to "Authorised JavaScript origins"
-   Replace GOOGLE_CLIENT_ID below with your own.
-   The app requests only drive.file scope — it can only see files
-   it creates itself, not the user's full Drive.
-═══════════════════════════════════════════ */
+/* ── google drive ── */
 const GOOGLE_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-let gisClient=null, driveToken=null;
-
-function loadGIS(){
-  return new Promise((resolve,reject)=>{
-    if(window.google?.accounts?.oauth2){ resolve(); return; }
-    const s=document.createElement('script');
-    s.src='https://accounts.google.com/gsi/client';
-    s.onload=resolve; s.onerror=()=>reject(new Error('Could not load Google Identity Services'));
-    document.head.appendChild(s);
-  });
-}
-
+let driveToken=null;
+function loadGIS(){return new Promise((resolve,reject)=>{if(window.google?.accounts?.oauth2){resolve();return;}const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=resolve;s.onerror=()=>reject(new Error('Could not load Google Identity Services'));document.head.appendChild(s);});}
 async function getDriveToken(){
   await loadGIS();
   return new Promise((resolve,reject)=>{
-    const client=google.accounts.oauth2.initTokenClient({
-      client_id:GOOGLE_CLIENT_ID,
-      scope:'https://www.googleapis.com/auth/drive.file',
-      callback:(resp)=>{
-        if(resp.error){ reject(new Error(resp.error)); return; }
-        driveToken=resp.access_token;
-        resolve(driveToken);
-      }
-    });
-    client.requestAccessToken({prompt: driveToken?'':'consent'});
+    const client=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:'https://www.googleapis.com/auth/drive.file',callback:(resp)=>{if(resp.error){reject(new Error(resp.error));return;}driveToken=resp.access_token;resolve(driveToken);}});
+    client.requestAccessToken({prompt:driveToken?'':'consent'});
   });
 }
-
 async function exportToDrive(){
-  if(GOOGLE_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'){
-    setDriveStatus('⚠ Set up required: replace GOOGLE_CLIENT_ID in the source with your own Google Cloud OAuth client ID. See the Export tab note below.','#b06000');
-    return;
-  }
-  const ec=buildExportCanvas(); if(!ec) return;
+  if(GOOGLE_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'){setDriveStatus('⚠ Replace GOOGLE_CLIENT_ID in the source with your own OAuth client ID.','#b06000');return;}
+  const ec=buildExportCanvas();if(!ec) return;
   setDriveStatus('Signing in to Google…','#1a3a5c');
   try{
-    const token=await getDriveToken();
-    setDriveStatus('Uploading…','#1a3a5c');
+    const token=await getDriveToken();setDriveStatus('Uploading…','#1a3a5c');
     ec.toBlob(async blob=>{
       try{
         const fname=(document.getElementById('export-filename').value||'field-sketch').replace(/[^a-z0-9_\- ]/gi,'_')+'.jpg';
-        /* multipart upload — metadata + image in one request */
         const boundary='fieldsketch_'+Date.now();
         const meta=JSON.stringify({name:fname,mimeType:'image/jpeg'});
-        const metaBytes=new TextEncoder().encode(
-          '--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n'+
-          '--'+boundary+'\r\nContent-Type: image/jpeg\r\n\r\n'
-        );
+        const metaBytes=new TextEncoder().encode('--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n'+'--'+boundary+'\r\nContent-Type: image/jpeg\r\n\r\n');
         const closeBytes=new TextEncoder().encode('\r\n--'+boundary+'--');
         const imgBytes=new Uint8Array(await blob.arrayBuffer());
         const body=new Uint8Array(metaBytes.length+imgBytes.length+closeBytes.length);
-        body.set(metaBytes,0); body.set(imgBytes,metaBytes.length); body.set(closeBytes,metaBytes.length+imgBytes.length);
-
-        const resp=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
-          method:'POST',
-          headers:{
-            'Authorization':'Bearer '+token,
-            'Content-Type':'multipart/related; boundary='+boundary
-          },
-          body
-        });
-        if(!resp.ok){ const e=await resp.json(); throw new Error(e.error?.message||resp.statusText); }
-        const file=await resp.json();
-        setDriveStatus('✓ Saved to Drive: '+fname,'#1a6b3a');
-        showToast('Saved to Google Drive');
-      }catch(err){ setDriveStatus('Upload failed: '+err.message,'#8b1a1a'); }
+        body.set(metaBytes,0);body.set(imgBytes,metaBytes.length);body.set(closeBytes,metaBytes.length+imgBytes.length);
+        const resp=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'multipart/related; boundary='+boundary},body});
+        if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.statusText);}
+        setDriveStatus('✓ Saved to Drive: '+fname,'#1a6b3a');showToast('Saved to Google Drive');
+      }catch(err){setDriveStatus('Upload failed: '+err.message,'#8b1a1a');}
     },'image/jpeg',0.95);
-  }catch(err){ setDriveStatus('Sign-in failed: '+err.message,'#8b1a1a'); }
+  }catch(err){setDriveStatus('Sign-in failed: '+err.message,'#8b1a1a');}
 }
-
-function setDriveStatus(msg,color='#5a5c63'){
-  const el=document.getElementById('drive-status');
-  el.textContent=msg; el.style.color=color;
-}
+function setDriveStatus(msg,color='#5a5c63'){const el=document.getElementById('drive-status');el.textContent=msg;el.style.color=color;}
 
 updateSettings();
 renderReadings();

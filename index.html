@@ -458,8 +458,13 @@ mainCanvas.addEventListener('touchmove',e=>{
       dragDrawing=true;
       if(dragStartWorld){
         const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
-        if(snap){currentMouse=snap; alignGuides=[];}
-        else{
+        snapPoint=snap; /* keep global in sync so magnifier follows live position */
+        if(snap){
+          currentMouse=snap; alignGuides=[];
+          const s=toScreen(snap.x,snap.y);
+          snapDot.style.display='block'; snapDot.style.left=s.x+'px'; snapDot.style.top=s.y+'px';
+        } else {
+          snapDot.style.display='none';
           const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
           const al=findAlignment({x:sn.x,y:sn.y}, dragStartWorld);
           currentMouse={x:al.x,y:al.y};

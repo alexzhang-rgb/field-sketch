@@ -27,6 +27,12 @@ button.tool.danger{background:var(--red-bg);color:var(--red);border-color:#e8b0b
 #canvas-wrap{flex:1;position:relative;overflow:hidden;touch-action:none}
 canvas{position:absolute;top:0;left:0;touch-action:none}
 #snap-dot{position:absolute;pointer-events:none;width:16px;height:16px;border-radius:50%;border:2.5px solid #f80;background:rgba(255,136,0,0.15);transform:translate(-50%,-50%);display:none;z-index:20}
+#magnifier{position:absolute;width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,0.35);overflow:hidden;pointer-events:none;display:none;z-index:60;background:#fff}
+#magnifier canvas{position:absolute;top:0;left:0}
+#magnifier .mag-crosshair{position:absolute;top:50%;left:50%;width:20px;height:20px;transform:translate(-50%,-50%);pointer-events:none}
+#magnifier .mag-crosshair::before,#magnifier .mag-crosshair::after{content:'';position:absolute;background:#f80}
+#magnifier .mag-crosshair::before{left:50%;top:0;width:1.5px;height:100%;transform:translateX(-50%)}
+#magnifier .mag-crosshair::after{top:50%;left:0;height:1.5px;width:100%;transform:translateY(-50%)}
 #toast{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(20,30,50,0.88);color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;z-index:200;display:none;white-space:nowrap;pointer-events:none}
 #drawer{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:14px 14px 0 0;z-index:30;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);transform:translateY(0);display:flex;flex-direction:column;max-height:80vh}
 #drawer.collapsed{transform:translateY(calc(100% - var(--drawer-peek)))}
@@ -103,6 +109,7 @@ canvas{position:absolute;top:0;left:0;touch-action:none}
   <canvas id="bg-canvas"></canvas>
   <canvas id="main-canvas"></canvas>
   <div id="snap-dot"></div>
+  <div id="magnifier"><canvas id="mag-canvas" width="140" height="140"></canvas><div class="mag-crosshair"></div></div>
   <div id="toast"></div>
   <div id="modal-overlay">
     <div id="modal">
@@ -211,6 +218,9 @@ const bgCtx=bgCanvas.getContext('2d');
 const ctx=mainCanvas.getContext('2d');
 const canvasWrap=document.getElementById('canvas-wrap');
 const snapDot=document.getElementById('snap-dot');
+const magnifier=document.getElementById('magnifier');
+const magCanvas=document.getElementById('mag-canvas');
+const magCtx=magCanvas.getContext('2d');
 const drawer=document.getElementById('drawer');
 
 let W=0,H=0,mode='draw',points=[],walls=[],wallIdCounter=0;
@@ -219,6 +229,7 @@ let offset={x:200,y:300},scale=100;
 let panning=false,panStart=null;
 let history=[],measSource='internal',wallThickness=0.2,angleSnap=15;
 let readings=[],readingIdCounter=0,drawerOpen=false;
+let alignGuides=[]; /* {type:'h'|'v', value} active alignment guides while drawing */
 
 /* ── drawer ── */
 function toggleDrawer(){
@@ -304,6 +315,14 @@ function render(){
   };
   for(const w of walls){drawPt(w.a);drawPt(w.b);}
   for(const p of points) drawPt(p,5);
+  /* alignment guides */
+  for(const g of alignGuides){
+    ctx.strokeStyle='#e0227a'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    if(g.type==='v'){ const sx=toScreen(g.value,0).x; ctx.moveTo(sx,0); ctx.lineTo(sx,H); }
+    else{ const sy=toScreen(0,g.value).y; ctx.moveTo(0,sy); ctx.lineTo(W,sy); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
   if(currentMouse&&mode==='draw'&&points.length>0){
     const last=points[points.length-1],wp=snapPoint||currentMouse;
     const a=toScreen(last.x,last.y),b=toScreen(wp.x,wp.y);
@@ -332,6 +351,26 @@ function angleSnapped(last,wx,wy){
   return {x:last.x+Math.cos(rad)*len,y:last.y+Math.sin(rad)*len,angle:s};
 }
 
+/* find horizontal/vertical alignment with existing points (within tolerance) */
+function findAlignment(curPt, excludePt){
+  const TOL=0.06; /* metres */
+  const allPts=[];
+  for(const w of walls) allPts.push(w.a,w.b);
+  let guides=[];
+  let snappedX=curPt.x, snappedY=curPt.y;
+  let bestVDist=Infinity, bestHDist=Infinity;
+  for(const p of allPts){
+    if(excludePt && Math.abs(p.x-excludePt.x)<0.0001 && Math.abs(p.y-excludePt.y)<0.0001) continue;
+    const dx=Math.abs(p.x-curPt.x);
+    if(dx<TOL && dx<bestVDist){ bestVDist=dx; snappedX=p.x; }
+    const dy=Math.abs(p.y-curPt.y);
+    if(dy<TOL && dy<bestHDist){ bestHDist=dy; snappedY=p.y; }
+  }
+  if(bestVDist<TOL) guides.push({type:'v', value:snappedX});
+  if(bestHDist<TOL) guides.push({type:'h', value:snappedY});
+  return { x:snappedX, y:snappedY, guides };
+}
+
 /* ── pointer state ── */
 function updatePointer(cx,cy){
   const wPos=toWorld(cx,cy);
@@ -339,9 +378,16 @@ function updatePointer(cx,cy){
   snapPoint=findSnap(wPos.x,wPos.y);
   if(snapPoint){const s=toScreen(snapPoint.x,snapPoint.y);snapDot.style.display='block';snapDot.style.left=s.x+'px';snapDot.style.top=s.y+'px';}
   else snapDot.style.display='none';
+  alignGuides=[];
   if(mode==='draw'){
     if(snapPoint){currentMouse=snapPoint;document.getElementById('info-angle').textContent='snap';}
-    else if(points.length>0){const sn=angleSnapped(points[points.length-1],wPos.x,wPos.y);currentMouse={x:sn.x,y:sn.y};document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';}
+    else if(points.length>0){
+      const sn=angleSnapped(points[points.length-1],wPos.x,wPos.y);
+      const al=findAlignment({x:sn.x,y:sn.y}, points[points.length-1]);
+      currentMouse={x:al.x,y:al.y};
+      alignGuides=al.guides;
+      document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
+    }
     else{currentMouse=wPos;document.getElementById('info-angle').textContent='—';}
     if(points.length>0){const l=points[points.length-1];document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-l.x,currentMouse.y-l.y).toFixed(3)+'m';}
   }
@@ -393,6 +439,7 @@ mainCanvas.addEventListener('touchstart',e=>{
       const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
       dragStartWorld=snap||wPos;
       updatePointer(cx,cy);render();
+      showMagnifier(cx,cy);
       longTimer=setTimeout(()=>{if(!tMoved&&!dragDrawing){endChain();showToast('Chain ended');}},650);
     }
   } else if(e.touches.length===2){
@@ -411,14 +458,21 @@ mainCanvas.addEventListener('touchmove',e=>{
       dragDrawing=true;
       if(dragStartWorld){
         const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
-        if(snap){currentMouse=snap;}
-        else{const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);currentMouse={x:sn.x,y:sn.y};document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';}
+        if(snap){currentMouse=snap; alignGuides=[];}
+        else{
+          const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
+          const al=findAlignment({x:sn.x,y:sn.y}, dragStartWorld);
+          currentMouse={x:al.x,y:al.y};
+          alignGuides=al.guides;
+          document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
+        }
         document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y).toFixed(3)+'m';
       }
-      t1Prev={cx,cy};renderDragPreview();return;
+      t1Prev={cx,cy};renderDragPreview();showMagnifier(cx,cy);return;
     }
-    if(mode!=='draw'){offset.x+=cx-t1Prev.cx;offset.y+=cy-t1Prev.cy;drawGrid();}
+    if(mode!=='draw'){offset.x+=cx-t1Prev.cx;offset.y+=cy-t1Prev.cy;drawGrid();hideMagnifier();}
     updatePointer(cx,cy);t1Prev={cx,cy};render();
+    if(mode==='draw') showMagnifier(cx,cy);
   } else if(e.touches.length===2&&pinchDist!==null){
     const newDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
     const newMid=tMidScreen(e.touches[0],e.touches[1]);
@@ -434,13 +488,19 @@ mainCanvas.addEventListener('touchmove',e=>{
 },{passive:false});
 
 mainCanvas.addEventListener('touchend',e=>{
-  e.preventDefault();clearTimeout(longTimer);
+  e.preventDefault();clearTimeout(longTimer);hideMagnifier();
   if(e.touches.length===0&&e.changedTouches.length===1){
     const r=mainCanvas.getBoundingClientRect(),cx=e.changedTouches[0].clientX-r.left,cy=e.changedTouches[0].clientY-r.top;
     if(mode==='draw'){
       if(dragDrawing&&dragStartWorld){
         const wPos=toWorld(cx,cy),snapEnd=findSnap(wPos.x,wPos.y);
-        let endPt=snapEnd||{...(()=>{const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);return {x:sn.x,y:sn.y};})()};
+        let endPt;
+        if(snapEnd){ endPt={...snapEnd}; }
+        else{
+          const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
+          const al=findAlignment({x:sn.x,y:sn.y}, dragStartWorld);
+          endPt={x:al.x,y:al.y};
+        }
         if(Math.hypot(endPt.x-dragStartWorld.x,endPt.y-dragStartWorld.y)>0.01){
           saveHistory();
           const startSnap=findSnap(dragStartWorld.x,dragStartWorld.y);
@@ -448,21 +508,28 @@ mainCanvas.addEventListener('touchend',e=>{
           points=snapEnd?[]:[endPt];
           showToast('Wall added');
         }
-        dragDrawing=false;dragStartWorld=null;currentMouse=null;render();return;
+        dragDrawing=false;dragStartWorld=null;currentMouse=null;alignGuides=[];render();return;
       }
       if(!tMoved) placePoint(cx,cy);
     } else if(mode==='select'){
       if(!tMoved) selectWall(cx,cy);
     }
-    t1Prev=null;tStartPos=null;dragDrawing=false;dragStartWorld=null;
+    t1Prev=null;tStartPos=null;dragDrawing=false;dragStartWorld=null;alignGuides=[];
   }
   if(e.touches.length<2){pinchDist=null;pinchScale=null;pinchMid=null;}
 },{passive:false});
 
-mainCanvas.addEventListener('touchcancel',()=>{clearTimeout(longTimer);t1Prev=null;pinchDist=null;dragDrawing=false;dragStartWorld=null;},{passive:true});
+mainCanvas.addEventListener('touchcancel',()=>{clearTimeout(longTimer);t1Prev=null;pinchDist=null;dragDrawing=false;dragStartWorld=null;hideMagnifier();},{passive:true});
 
 function renderDragPreview(){
   ctx.clearRect(0,0,W,H);
+  for(const g of alignGuides){
+    ctx.strokeStyle='#e0227a'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    if(g.type==='v'){ const sx=toScreen(g.value,0).x; ctx.moveTo(sx,0); ctx.lineTo(sx,H); }
+    else{ const sy=toScreen(0,g.value).y; ctx.moveTo(0,sy); ctx.lineTo(W,sy); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
   for(const w of walls){
     const a=toScreen(w.a.x,w.a.y),b=toScreen(w.b.x,w.b.y);
     ctx.strokeStyle=selectedWallId===w.id?'#f80':(w.measurement!==null?'#1a3a5c':'#4a7aac');
@@ -496,7 +563,57 @@ function renderDragPreview(){
   updateSummary();
 }
 
-/* ── place point ── */
+/* ── magnifier loupe ──
+   Shows a zoomed circular view of the canvas centred on the finger's
+   target point (point being placed/dragged), offset above the finger
+   so it isn't covered by the hand. */
+const MAG_ZOOM=2.8; /* zoom factor relative to main canvas */
+const MAG_SIZE=140;
+const MAG_OFFSET_Y=-110; /* px above touch point */
+
+function showMagnifier(touchCx, touchCy){
+  /* figure out what world point we're targeting — prefer snap, else currentMouse, else raw touch */
+  let targetWorld;
+  if(snapPoint){ targetWorld=snapPoint; }
+  else if(currentMouse){ targetWorld=currentMouse; }
+  else{ targetWorld=toWorld(touchCx,touchCy); }
+  const targetScreen=toScreen(targetWorld.x,targetWorld.y);
+
+  /* draw zoomed snapshot of main canvas centred on targetScreen */
+  magCtx.clearRect(0,0,MAG_SIZE,MAG_SIZE);
+  magCtx.save();
+  magCtx.beginPath();
+  magCtx.arc(MAG_SIZE/2,MAG_SIZE/2,MAG_SIZE/2,0,Math.PI*2);
+  magCtx.clip();
+  magCtx.fillStyle='#fff';
+  magCtx.fillRect(0,0,MAG_SIZE,MAG_SIZE);
+  /* draw both bg grid and main canvas, scaled */
+  const srcSize=MAG_SIZE/MAG_ZOOM;
+  const sx=targetScreen.x-srcSize/2, sy=targetScreen.y-srcSize/2;
+  magCtx.drawImage(bgCanvas, sx, sy, srcSize, srcSize, 0, 0, MAG_SIZE, MAG_SIZE);
+  magCtx.drawImage(mainCanvas, sx, sy, srcSize, srcSize, 0, 0, MAG_SIZE, MAG_SIZE);
+  magCtx.restore();
+  /* ring border */
+  magCtx.beginPath();
+  magCtx.arc(MAG_SIZE/2,MAG_SIZE/2,MAG_SIZE/2-1.5,0,Math.PI*2);
+  magCtx.strokeStyle=snapPoint?'#f80':'#1a3a5c';
+  magCtx.lineWidth=3;
+  magCtx.stroke();
+
+  /* position the magnifier bubble above the finger, clamped inside canvas-wrap */
+  let bx=touchCx, by=touchCy+MAG_OFFSET_Y;
+  bx=Math.max(MAG_SIZE/2+4, Math.min(W-MAG_SIZE/2-4, bx));
+  by=Math.max(MAG_SIZE/2+4, by);
+  magnifier.style.left=(bx-MAG_SIZE/2)+'px';
+  magnifier.style.top=(by-MAG_SIZE/2)+'px';
+  magnifier.style.display='block';
+}
+
+function hideMagnifier(){
+  magnifier.style.display='none';
+}
+
+
 function placePoint(cx,cy){
   const wPos=toWorld(cx,cy);
   let wx,wy;
@@ -514,7 +631,7 @@ function placePoint(cx,cy){
   } else {saveHistory();points.push({x:wx,y:wy});}
   render();
 }
-function endChain(){points=[];currentMouse=null;document.getElementById('info-angle').textContent='—';document.getElementById('info-len').textContent='—';render();}
+function endChain(){points=[];currentMouse=null;alignGuides=[];document.getElementById('info-angle').textContent='—';document.getElementById('info-len').textContent='—';render();}
 
 /* ── select ── */
 function selectWall(cx,cy){

@@ -438,7 +438,10 @@ mainCanvas.addEventListener('touchstart',e=>{
     if(mode==='draw'){
       const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
       dragStartWorld=snap||wPos;
-      updatePointer(cx,cy);render();
+      /* set currentMouse/snapPoint to the drag start itself (not a chain preview) so magnifier shows exactly where the finger is */
+      snapPoint=snap;
+      currentMouse=snap||wPos;
+      render();
       showMagnifier(cx,cy);
       longTimer=setTimeout(()=>{if(!tMoved&&!dragDrawing){endChain();showToast('Chain ended');}},650);
     }
@@ -454,25 +457,23 @@ mainCanvas.addEventListener('touchmove',e=>{
   if(e.touches.length===1&&t1Prev){
     const r=mainCanvas.getBoundingClientRect(),cx=e.touches[0].clientX-r.left,cy=e.touches[0].clientY-r.top;
     if(Math.hypot(cx-tStartPos.cx,cy-tStartPos.cy)>8) tMoved=true;
-    if(mode==='draw'&&tMoved){
+    if(mode==='draw'&&dragStartWorld){
       dragDrawing=true;
-      if(dragStartWorld){
-        const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
-        snapPoint=snap; /* keep global in sync so magnifier follows live position */
-        if(snap){
-          currentMouse=snap; alignGuides=[];
-          const s=toScreen(snap.x,snap.y);
-          snapDot.style.display='block'; snapDot.style.left=s.x+'px'; snapDot.style.top=s.y+'px';
-        } else {
-          snapDot.style.display='none';
-          const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
-          const al=findAlignment({x:sn.x,y:sn.y}, dragStartWorld);
-          currentMouse={x:al.x,y:al.y};
-          alignGuides=al.guides;
-          document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
-        }
-        document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y).toFixed(3)+'m';
+      const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
+      snapPoint=snap; /* keep global in sync so magnifier follows live position */
+      if(snap){
+        currentMouse=snap; alignGuides=[];
+        const s=toScreen(snap.x,snap.y);
+        snapDot.style.display='block'; snapDot.style.left=s.x+'px'; snapDot.style.top=s.y+'px';
+      } else {
+        snapDot.style.display='none';
+        const sn=angleSnapped(dragStartWorld,wPos.x,wPos.y);
+        const al=findAlignment({x:sn.x,y:sn.y}, dragStartWorld);
+        currentMouse={x:al.x,y:al.y};
+        alignGuides=al.guides;
+        document.getElementById('info-angle').textContent=Math.round(sn.angle)+'°';
       }
+      document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y).toFixed(3)+'m';
       t1Prev={cx,cy};renderDragPreview();showMagnifier(cx,cy);return;
     }
     if(mode!=='draw'){offset.x+=cx-t1Prev.cx;offset.y+=cy-t1Prev.cy;drawGrid();hideMagnifier();}

@@ -778,12 +778,55 @@ function openModal(id){
   requestAnimationFrame(()=>{ inp.focus(); });
 }
 function closeModal(){document.getElementById('modal-overlay').classList.remove('show');pendingWallId=null;selectedWallId=null;render();}
+/* rescale a wall to its assigned measurement, keeping wall.a fixed,
+   moving wall.b along the existing direction, then cascading any walls
+   that share the moved endpoint so the sketch stays connected */
+function rescaleWall(w, newLen){
+  const dx=w.b.x-w.a.x, dy=w.b.y-w.a.y;
+  const currentLen=Math.hypot(dx,dy);
+  if(currentLen<0.0001) return; /* zero-length wall, skip */
+
+  /* unit vector along the wall */
+  const ux=dx/currentLen, uy=dy/currentLen;
+
+  /* old b position (before move) */
+  const oldBx=w.b.x, oldBy=w.b.y;
+
+  /* new b position */
+  const newBx=w.a.x+ux*newLen;
+  const newBy=w.a.y+uy*newLen;
+
+  /* update this wall's b */
+  w.b={x:newBx, y:newBy};
+
+  /* cascade — find every OTHER wall whose endpoint exactly matches oldB
+     and move it to newB, keeping connectivity intact */
+  const TOL=0.0001;
+  for(const other of walls){
+    if(other.id===w.id) continue;
+    if(Math.abs(other.a.x-oldBx)<TOL && Math.abs(other.a.y-oldBy)<TOL){
+      other.a={x:newBx,y:newBy};
+    }
+    if(Math.abs(other.b.x-oldBx)<TOL && Math.abs(other.b.y-oldBy)<TOL){
+      other.b={x:newBx,y:newBy};
+    }
+  }
+}
+
 function confirmModal(){
   const val=parseFloat(document.getElementById('modal-input').value);
   if(isNaN(val)||val<=0){alert('Enter a valid distance.');return;}
   if(pendingWallId!==null){
     const w=walls.find(x=>x.id===pendingWallId);
-    if(w){w.measurement=val;const m=readings.find(r=>!r.used&&Math.abs(r.value-val)<0.0005);if(m){m.used=true;renderReadings();}}
+    if(w){
+      saveHistory();
+      /* convert external measurement to internal before storing */
+      const internalVal=(measSource==='external')?val+wallThickness:val;
+      w.measurement=val; /* store the entered value as-is for display */
+      rescaleWall(w, internalVal); /* physically resize using internal length */
+      const m=readings.find(r=>!r.used&&Math.abs(r.value-val)<0.0005);
+      if(m){m.used=true;renderReadings();}
+    }
   }
   updateSummary();render();closeModal();
 }
@@ -807,7 +850,16 @@ function renderReadings(){
     div.className='reading-item'+(r.used?' used':'');
     div.innerHTML=`<span><span class="reading-val">${r.value.toFixed(3)} m</span><br><span class="reading-src">${r.source==='bluetooth'?'via Bluetooth':'manual'}</span></span><button class="reading-del" onclick="event.stopPropagation();removeReading(${r.id})">✕</button>`;
     if(!r.used) div.onclick=()=>{
-      if(selectedWallId!==null){const w=walls.find(x=>x.id===selectedWallId);if(w){w.measurement=r.value;r.used=true;renderReadings();updateSummary();render();}}
+      if(selectedWallId!==null){
+        const w=walls.find(x=>x.id===selectedWallId);
+        if(w){
+          saveHistory();
+          const internalVal=(measSource==='external')?r.value+wallThickness:r.value;
+          w.measurement=r.value;
+          rescaleWall(w,internalVal);
+          r.used=true;renderReadings();updateSummary();render();
+        }
+      }
       else if(walls.length){openModal(walls[walls.length-1].id);document.getElementById('modal-input').value=r.value;}
     };
     el.appendChild(div);

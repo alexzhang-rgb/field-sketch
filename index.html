@@ -382,11 +382,18 @@ function render(){
 
   const seen=new Set();
   const drawPt=(p,r=4)=>{
-    const k=p.x.toFixed(4)+','+p.y.toFixed(4);
+    const k=ptKey(p);
     if(seen.has(k)) return; seen.add(k);
     const s=toScreen(p.x,p.y);
-    ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);
-    ctx.fillStyle='#1a3a5c';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    const isSel=selectedPointKey===k;
+    ctx.beginPath();ctx.arc(s.x,s.y,isSel?8:r,0,Math.PI*2);
+    ctx.fillStyle=isSel?'#f80':'#1a3a5c';ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=isSel?2.5:1.5;ctx.stroke();
+    if(isSel){
+      /* outer ring */
+      ctx.beginPath();ctx.arc(s.x,s.y,13,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,136,0,0.4)';ctx.lineWidth=2;ctx.stroke();
+    }
   };
   for(const w of walls){drawPt(w.a);drawPt(w.b);}
   for(const p of points) drawPt(p,5);
@@ -530,22 +537,31 @@ function tMidScreen(t1,t2){
 }
 
 mainCanvas.addEventListener('touchstart',e=>{
-  e.preventDefault();clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;
+  e.preventDefault();clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;draggingPoint=false;
   if(e.touches.length===1){
     const r=mainCanvas.getBoundingClientRect(),cx=e.touches[0].clientX-r.left,cy=e.touches[0].clientY-r.top;
     t1Prev={cx,cy};tStartPos={cx,cy};tMoved=false;
     if(mode==='draw'){
       const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
       dragStartWorld=snap||wPos;
-      /* set currentMouse/snapPoint to the drag start itself (not a chain preview) so magnifier shows exactly where the finger is */
       snapPoint=snap;
       currentMouse=snap||wPos;
       render();
       showMagnifier(cx,cy);
       longTimer=setTimeout(()=>{if(!tMoved&&!dragDrawing){endChain();showToast('Chain ended');}},650);
+    } else if(mode==='select'){
+      /* check if touching near a point — if so, prepare to drag it */
+      const wPos=toWorld(cx,cy);
+      const allPts=getAllPoints();
+      let bestD=Infinity, nearPt=null;
+      for(const p of allPts){
+        const d=Math.hypot(p.x-wPos.x,p.y-wPos.y);
+        if(d<0.18&&d<bestD){bestD=d;nearPt=p;}
+      }
+      if(nearPt){selectedPointKey=ptKey(nearPt);selectedWallId=null;}
     }
   } else if(e.touches.length===2){
-    clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;
+    clearTimeout(longTimer);dragDrawing=false;dragStartWorld=null;draggingPoint=false;
     pinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
     pinchScale=scale;pinchMid=tMidScreen(e.touches[0],e.touches[1]);t1Prev=null;
   }
@@ -559,7 +575,7 @@ mainCanvas.addEventListener('touchmove',e=>{
     if(mode==='draw'&&dragStartWorld){
       dragDrawing=true;
       const wPos=toWorld(cx,cy),snap=findSnap(wPos.x,wPos.y);
-      snapPoint=snap; /* keep global in sync so magnifier follows live position */
+      snapPoint=snap;
       if(snap){
         currentMouse=snap; alignGuides=[];
         const s=toScreen(snap.x,snap.y);
@@ -574,6 +590,32 @@ mainCanvas.addEventListener('touchmove',e=>{
       }
       document.getElementById('info-len').textContent=Math.hypot(currentMouse.x-dragStartWorld.x,currentMouse.y-dragStartWorld.y).toFixed(3)+'m';
       t1Prev={cx,cy};renderDragPreview();showMagnifier(cx,cy);return;
+    }
+    if(mode==='select'&&selectedPointKey&&tMoved){
+      /* drag the selected point — move all connected walls rigidly */
+      draggingPoint=true;
+      const wPos=toWorld(cx,cy);
+      const snap=findSnap(wPos.x,wPos.y);
+      const al=findAlignment(wPos,null);
+      const newPt=snap||{x:al.x,y:al.y};
+      /* find current actual position of the selected point */
+      const allPts=getAllPoints();
+      const curPt=allPts.find(p=>ptKey(p)===selectedPointKey);
+      if(curPt){
+        const ddx=newPt.x-curPt.x, ddy=newPt.y-curPt.y;
+        if(Math.abs(ddx)>0.0001||Math.abs(ddy)>0.0001){
+          /* move all walls sharing this point */
+          const TOL=0.0001;
+          for(const w of walls){
+            if(Math.abs(w.a.x-curPt.x)<TOL&&Math.abs(w.a.y-curPt.y)<TOL) w.a={x:newPt.x,y:newPt.y};
+            if(Math.abs(w.b.x-curPt.x)<TOL&&Math.abs(w.b.y-curPt.y)<TOL) w.b={x:newPt.x,y:newPt.y};
+          }
+          selectedPointKey=ptKey(newPt);
+          alignGuides=al.guides||[];
+          render();showMagnifier(cx,cy);
+        }
+      }
+      t1Prev={cx,cy};return;
     }
     if(mode!=='draw'){offset.x+=cx-t1Prev.cx;offset.y+=cy-t1Prev.cy;drawGrid();hideMagnifier();}
     updatePointer(cx,cy);t1Prev={cx,cy};render();
@@ -617,7 +659,16 @@ mainCanvas.addEventListener('touchend',e=>{
       }
       if(!tMoved) placePoint(cx,cy);
     } else if(mode==='select'){
-      if(!tMoved) selectWall(cx,cy);
+      if(draggingPoint){
+        /* point drag committed — clear drag state, update wall measurements that changed length */
+        draggingPoint=false;
+        /* clear manual measurements on walls whose geometry changed so they re-display correctly */
+        showToast('Point moved');
+        alignGuides=[];render();
+      } else if(!tMoved){
+        selectWall(cx,cy);
+      }
+      selectedPointKey=null;
     }
     t1Prev=null;tStartPos=null;dragDrawing=false;dragStartWorld=null;alignGuides=[];
   }
@@ -739,8 +790,32 @@ function placePoint(cx,cy){
 function endChain(){points=[];currentMouse=null;alignGuides=[];document.getElementById('info-angle').textContent='—';document.getElementById('info-len').textContent='—';render();}
 
 /* ── select ── */
+const ptKey=p=>p.x.toFixed(4)+','+p.y.toFixed(4);
+
+function getAllPoints(){
+  const seen=new Set(), pts=[];
+  for(const w of walls){
+    for(const p of[w.a,w.b]){
+      const k=ptKey(p);
+      if(!seen.has(k)){seen.add(k);pts.push(p);}
+    }
+  }
+  return pts;
+}
+
 function selectWall(cx,cy){
-  const wPos=toWorld(cx,cy);selectedWallId=null;let bestD=Infinity;
+  const wPos=toWorld(cx,cy);
+  /* check points first — 0.15m tap radius */
+  const allPts=getAllPoints();
+  let bestPtD=Infinity;
+  selectedPointKey=null;
+  for(const p of allPts){
+    const d=Math.hypot(p.x-wPos.x,p.y-wPos.y);
+    if(d<0.15&&d<bestPtD){bestPtD=d;selectedPointKey=ptKey(p);}
+  }
+  if(selectedPointKey){selectedWallId=null;render();return;}
+  /* otherwise check walls */
+  selectedWallId=null;let bestD=Infinity;
   for(const w of walls){const d=distSeg(wPos,w.a,w.b);if(d<0.14&&d<bestD){bestD=d;selectedWallId=w.id;}}
   if(selectedWallId!==null) openModal(selectedWallId);
   render();
@@ -778,39 +853,64 @@ function openModal(id){
   requestAnimationFrame(()=>{ inp.focus(); });
 }
 function closeModal(){document.getElementById('modal-overlay').classList.remove('show');pendingWallId=null;selectedWallId=null;render();}
-/* rescale a wall to its assigned measurement, keeping wall.a fixed,
-   moving wall.b along the existing direction, then cascading any walls
-   that share the moved endpoint so the sketch stays connected */
+/* ── selected point state (for point-drag in select mode) ── */
+let selectedPointKey=null; /* "x,y" key of the point being dragged */
+let draggingPoint=false;
+
+/* translate a point and rigidly propagate the move to all connected walls,
+   cascading outward like pushing a chain — walls keep their length and angle,
+   they just translate. We do a BFS from the moved point, never backtracking
+   through the wall we came from, so the "fixed" side of the resized wall stays put. */
+function propagateMove(oldX, oldY, newX, newY, sourceWallId){
+  const TOL=0.0001;
+  const dx=newX-oldX, dy=newY-oldY;
+  /* visited set — point keys we've already moved, to stop infinite loops */
+  const visited=new Set();
+  visited.add(oldX.toFixed(4)+','+oldY.toFixed(4));
+
+  /* BFS queue: each entry = {ptX, ptY} — the point we just moved to */
+  const queue=[{px:oldX,py:oldY}];
+
+  while(queue.length){
+    const {px,py}=queue.shift();
+    for(const w of walls){
+      if(w.id===sourceWallId) continue; /* don't cascade back through the resized wall */
+      let moved=null;
+      if(Math.abs(w.a.x-px)<TOL && Math.abs(w.a.y-py)<TOL){
+        /* this wall's A matches — translate the whole wall */
+        const oldBKey=w.b.x.toFixed(4)+','+w.b.y.toFixed(4);
+        if(!visited.has(oldBKey)){
+          visited.add(oldBKey);
+          queue.push({px:w.b.x,py:w.b.y});
+        }
+        w.a={x:w.a.x+dx,y:w.a.y+dy};
+        w.b={x:w.b.x+dx,y:w.b.y+dy};
+      } else if(Math.abs(w.b.x-px)<TOL && Math.abs(w.b.y-py)<TOL){
+        /* this wall's B matches — translate the whole wall */
+        const oldAKey=w.a.x.toFixed(4)+','+w.a.y.toFixed(4);
+        if(!visited.has(oldAKey)){
+          visited.add(oldAKey);
+          queue.push({px:w.a.x,py:w.a.y});
+        }
+        w.a={x:w.a.x+dx,y:w.a.y+dy};
+        w.b={x:w.b.x+dx,y:w.b.y+dy};
+      }
+    }
+  }
+}
+
 function rescaleWall(w, newLen){
   const dx=w.b.x-w.a.x, dy=w.b.y-w.a.y;
   const currentLen=Math.hypot(dx,dy);
-  if(currentLen<0.0001) return; /* zero-length wall, skip */
-
-  /* unit vector along the wall */
+  if(currentLen<0.0001) return;
   const ux=dx/currentLen, uy=dy/currentLen;
-
-  /* old b position (before move) */
   const oldBx=w.b.x, oldBy=w.b.y;
-
-  /* new b position */
   const newBx=w.a.x+ux*newLen;
   const newBy=w.a.y+uy*newLen;
-
-  /* update this wall's b */
-  w.b={x:newBx, y:newBy};
-
-  /* cascade — find every OTHER wall whose endpoint exactly matches oldB
-     and move it to newB, keeping connectivity intact */
-  const TOL=0.0001;
-  for(const other of walls){
-    if(other.id===w.id) continue;
-    if(Math.abs(other.a.x-oldBx)<TOL && Math.abs(other.a.y-oldBy)<TOL){
-      other.a={x:newBx,y:newBy};
-    }
-    if(Math.abs(other.b.x-oldBx)<TOL && Math.abs(other.b.y-oldBy)<TOL){
-      other.b={x:newBx,y:newBy};
-    }
-  }
+  /* move b to new position */
+  w.b={x:newBx,y:newBy};
+  /* rigidly propagate — all walls connected to old B translate by the delta */
+  propagateMove(oldBx, oldBy, newBx, newBy, w.id);
 }
 
 function confirmModal(){
